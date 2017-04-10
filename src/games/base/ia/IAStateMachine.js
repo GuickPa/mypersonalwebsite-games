@@ -1,0 +1,82 @@
+/**
+ * Created by guglielmo on 09/04/17.
+ */
+window.cocos.cc.IAStateMachine = window.cocos.cc.Class.extend({
+    _className: "IAStateMachine",
+    //GUI: custom
+    //GUI: reference to entity
+    entity: null,
+    //GUI: list of states
+    states: null,
+    currentState: null,
+    nextState: null,
+    changeStateFlag: false,
+
+    ctor: function(entity){
+
+        this.entity = entity;
+        this.init();
+    },
+
+    init: function(){
+        //GUI: init a standard set of behaviours
+        this.states = {};
+        this.states[window.cocos.cc.kIAStateIdle] = window.cocos.cc.IAStateIdle.create();
+        this.states[window.cocos.cc.kIAStateWalk] = window.cocos.cc.IAStateWalk.create();
+        this.states[window.cocos.cc.kIAStateAttack] = window.cocos.cc.IAStateAttack.create();
+        //GUI: set entity to states
+        for(var key in this.states){
+            this.states[key].setEntity(this.entity);
+        }
+        this.currentState = null;
+        this.nextState = null;
+        this.changeStateFlag = false;
+    },
+
+    update: function(dt){
+        if(this.currentState != null){
+            this.currentState.update(dt);
+        }
+        //GUI: check if it has to change state
+        if(this.changeStateFlag){
+            this.changeStateFlag = false;
+            if(this.currentState != null){
+                this.currentState.onExit();
+            }
+            //GUI: activate new state
+            this.currentState = this.nextState;
+            this.currentState.onEnter();
+            this.nextState = null;
+        }
+    },
+
+    changeState: function(stateName){
+        //GUI: change state at the end of this update cycle
+        if(stateName != null) {
+            var newState = this.states[stateName];
+            if(newState){
+                this.nextState = newState;
+                this.changeStateFlag = true;
+            }
+        }
+    },
+
+    ////////////////////////////////////////////////////////////////////
+    //GUI: events on movements
+    onGroundTouched: function(entity){
+        if(this.currentState != null){
+            this.currentState.onGroundTouched(entity);
+        }
+    },
+
+    onHitEvent: function(entity){
+        if(this.currentState != null){
+            this.currentState.onHitEvent(entity);
+        }
+
+    },
+});
+
+window.cocos.cc.IAStateMachine.create = function (entity) {
+    return new window.cocos.cc.IAStateMachine(entity);
+};

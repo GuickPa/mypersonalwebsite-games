@@ -1,0 +1,37 @@
+{
+  "name": "guglielmodeletis",
+  "version": "1.0.0",
+  "description": "Guglielmo Deletis' personal website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Guglielmo",
+    "Deletis",
+    "iOS",
+    "Android",
+    "Angular",
+    "HTML5",
+    "CSS"
+  ],
+  "author": "Guglielmo Deletis",
+  "license": "ISC",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^2.2.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-delete-sync": "0.0.2",
+    "grunt-include-replace": "^5.0.0",
+    "grunt-newer": "^1.2.0",
+    "grunt-open": "^0.2.3",
+    "grunt-sass": "^2.0.0",
+    "matchdep": "^1.0.1",
+    "node-sass": "^4.5.1"
+  }
+}
