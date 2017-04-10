@@ -109,7 +109,9 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     
     stopCurrentAnimation: function(){
         if(this.currentAnimationAction != null){
-            this.stopAction(this.currentAnimationAction);
+            if(!this.currentAnimationAction.isDone()) {
+                this.stopAction(this.currentAnimationAction);
+            }
         }  
     },
     
@@ -136,9 +138,9 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             //GUI: check with obstacles
             var obstacles = this.sceneTilemap.getLayer('obstacle');
             if(obstacles) {
-                this.moveX(dx, dt, p, obstacles, size);
+                this.moveX(dx, dy, dt, p, obstacles, size);
                 p = this.getPosition();
-                this.moveY(dy, dt, p, obstacles, size);
+                this.moveY(dx, dy, dt, p, obstacles, size);
                 //p = this.getPosition();
                 //this.moveSlope(dx, p, obstacles, size)
 
@@ -153,14 +155,40 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             this.setPosition(p.x + dx, p.y + dy);
         }
     },
+    
+    //GUI: perform custom check on a tile
+    checkTile: function(tile){
+        return true;
+    },
 
-    moveX: function(dx, dt, p, obstacles, tileSize){
+    moveX: function(dx, dy, dt, p, obstacles, tileSize){
         //GUI: getting tileset lines which this.bb intersect with (opposite axis)
         var halfH = (this.collisionSize.height / 2 * this.getScaleY());
         var max = obstacles.getLayerSize().height -1;
-        var minY = Math.max(0,Math.floor((p.y - halfH) / tileSize.height)); //GUI: todo: consider using Math.round
-        var maxY = Math.min(max - 1, Math.floor((p.y + halfH) / tileSize.height)); //GUI: todo: consider using Math.round
-        var colX = Math.floor(p.x / tileSize.width);
+        var minY = Math.max(0, Math.round((p.y - halfH) / tileSize.height)); //GUI: todo: consider using Math.round
+        var maxY = Math.min(max - 1, Math.round((p.y + halfH) / tileSize.height)); //GUI: todo: consider using Math.round
+        var colX = Math.round(p.x / tileSize.width);
+        //GUI: first check if it is on slope
+        var tp = window.cocos.cc.p(colX, max - minY);
+        var tile = obstacles.getTileAt(tp);
+        if (tile && this.checkTile(tile)) {
+            //GUI: get tile's properties
+            var gid = obstacles.getTileGIDAt(tp);
+            var properties = this.sceneTilemap.getPropertiesForGID(gid);
+            //GUI: check for slopes
+            if (properties != null && properties["sr"] != null && properties["sl"] != null) {
+                //GUI: if it is on slope, just move torward to direction
+                this.setPositionX(p.x + dx);
+                return;
+            }
+            //GUI: if it is not on a slope, but it is closer to tile's upper surface, adjust y value (prevents problem when climbing a slope and it ends to be near, but under, tile'surface)
+            else{
+                var tileUpperY = (tile.getPosition().y * this.sceneTilemap.getScaleY()) + tileSize.height;
+                if(Math.abs((this.getPosition().y - halfH) - tileUpperY) <= tileSize.height/20){
+                    this.setPositionY(tileUpperY + halfH);
+                }
+            }
+        }
         //GUI: scan along these rows and towards the direction to find obstacles
         //then find the distance with the closest one: movement is the minimum between distance and this'step
         if (dx > 0) {
@@ -172,7 +200,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             for (var i = Math.min(max, max - minY); i >= Math.max(0,max - maxY); i--) {
                 //GUI: scroll cols
                 for (var col = colX; col <= colMax; col++) {
-                    var tp = window.cocos.cc.p(col, i)
+                    tp = window.cocos.cc.p(col, i)
                     var tile = obstacles.getTileAt(tp);
                     if (tile) {
                         //GUI: get tile's properties
@@ -187,7 +215,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                             var dsy = (this.getPosition().x - tileL) / tileW;
                             if(0 <= dsy && dsy <= 1) {
                                 var sl = parseFloat(properties["sl"]);
-                                var bottomY = this.getPosition().y + 1 - halfH;
+                                var bottomY = this.getPosition().y - halfH;
                                 var slopeY = (tile.getPosition().y + (tile._getHeight() * sl)) * this.sceneTilemap.getScaleY();
                                 //GUI: if slope is less than bottom of this, or is behind, go on
                                 if (bottomY >= slopeY || this.getPosition().x >= (tile.getPosition().x * this.sceneTilemap.getScaleX())) {
@@ -219,7 +247,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         }
         else if(dx < 0){
             //GUI: getting forward face x-value
-            var fx = p.x + 1 - ((this.collisionSize.width / 2) * this.getScaleX());
+            var fx = p.x - ((this.collisionSize.width / 2) * this.getScaleX());
             var min = -100000.0;
             //GUI: scroll rows
             var colMin = Math.max(0, colX - (halfH/tileSize.width));
@@ -271,12 +299,12 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         }
     },
 
-    moveY: function(dy, dt, p, obstacles, tileSize){
+    moveY: function(dx, dy, dt, p, obstacles, tileSize){
         //GUI: getting tileset lines which this.bb intersect with (opposite axis)
         var halfW = (this.collisionSize.width / 2 * Math.abs(this.getScaleX()));
-        var minX = Math.floor((p.x - halfW) / tileSize.width); //GUI: todo: consider using Math.round
-        var maxX = Math.floor((p.x + halfW) / tileSize.width); //GUI: todo: consider using Math.round
-        var rowY = Math.floor(p.y / tileSize.height);
+        var minX = Math.round((p.x - halfW) / tileSize.width); //GUI: todo: consider using Math.round
+        var maxX = Math.round((p.x + halfW) / tileSize.width); //GUI: todo: consider using Math.round
+        var rowY = Math.round(p.y / tileSize.height);
         var max = obstacles.getLayerSize().height - 1;
         //GUI: scan along these rows and towards the direction to find obstacles
         //then find the distance with the closest one: movement is the minimum between distance and this'step
@@ -298,7 +326,6 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                 }
             }
             //GUI: default behaviour
-            console.log("default");
             this.setPositionY(p.y + dy);
             return;
         }

@@ -34,25 +34,27 @@
                                 this.addChild(tileset, 0);
                                 var tscale = size.height/(9*256);
                                 tileset.setScale(tscale);
+                                //GUI: wait a while, then load objects //GUI: avoid bug that makes objects looking for tiles before tilemap was completely loaded
+                                cc.director.getScheduler().scheduleCallbackForTarget(this, this.onLoadTiledMap, 0.25, false, 0, false);
+                            },
+
+                            onLoadTiledMap: function(){
+                                var size = cc.director.getWinSize();
+                                var tscale = size.height/(9*256);
                                 var sprite = cc.Player.create("assets/games/player/Idle (1).png");
                                 sprite.setScale(0.25);
                                 sprite.setPosition(2048 * size.height/(9*256), 1536 * size.height/(9*256));
                                 this.addChild(sprite, 1);
-                                // var bullet = cc.RobotBullet.create();
-                                // bullet.setShootDirection(cc.p(1,0));
-                                // bullet.setPosition(2048 * size.height/(9*256), 1400 * size.height/(9*256));
-                                // bullet.setScale(0.25);
-                                // this.addChild(bullet, 1);
-                                // bullet.sceneTilemap = tileset;
-                                // var label = cc.LabelTTF.create("Hello World", "Arial", 40);
-                                // label.setPosition(size.width / 2, size.height / 2);
-                                // this.addChild(label, 1);
-
                                 //GUI: adding an enemy
-                                var enemy = cc.EnemyMale.create("assets/games/enemy/male/Idle (1).png");
-                                enemy.setScale(0.25);
-                                enemy.setPosition(512 * size.height/(9*256), 768 * size.height/(9*256));
-                                this.addChild(enemy, 1);
+                                // var enemy = cc.EnemyMale.create("assets/games/enemy/male/Idle (1).png");
+                                // enemy.setScale(0.25);
+                                // enemy.setPosition(512 * size.height/(9*256), 768 * size.height/(9*256));
+                                // this.addChild(enemy, 1);
+                                //
+                                // enemy = cc.EnemyMale.create("assets/games/enemy/male/Idle (1).png");
+                                // enemy.setScale(0.25);
+                                // enemy.setPosition(7168 * size.height/(9*256), 768 * size.height/(9*256));
+                                // this.addChild(enemy, 1);
 
                                 this.leftBound = 2 * tscale * 256;
                                 this.rightBound = size.width - (4 * tscale * 256);

@@ -48,6 +48,11 @@ window.cocos.cc.Bullet = window.cocos.cc.GameEntity.extend({
         this.setFlippedY(this.velocity.y < 0);
     },
 
+    //GUI: override: do no checks for tiles
+    checkTile: function(tile){
+        return false;
+    },
+
     update: function (dt) {
         if(this.shouldBeRemoved){
             this.unscheduleUpdate();
@@ -141,12 +146,17 @@ window.cocos.cc.RobotBullet = window.cocos.cc.Bullet.extend({
     update: function(dt){
         this._super(dt);
         //GUI: check for hit with enemies
-        this.checkForHitWithEntities(window.cocos.cc.kGameEntityEnemyTag);
+        if(!this.hitEntity) {
+            this.checkForHitWithEntities(window.cocos.cc.kGameEntityEnemyTag);
+        }
     },
 
     onHitEvent: function(entity){        
         //GUI: call super first
         this._super(entity);
+        // if(entity && (entity.getTag() & window.cocos.cc.kGameEntityEnemyTag)){
+        //     this.setPositionX(entity.getPositionX());
+        // }
         //GUI: play blow animation and set a callback for action after end of explosion
         this.playAnimation("blow", false, function(){this.onEndBlow()});
     },
@@ -158,11 +168,11 @@ window.cocos.cc.RobotBullet = window.cocos.cc.Bullet.extend({
     onEnter: function(){
         this._super();
         //GUI: set collision size
-        this.collisionSize = new window.cocos.cc.Size(160, 32);
+        this.collisionSize = new window.cocos.cc.Size(120, 82);
         //GUI: init animations
         var idle = ["Bullet_000", "Bullet_001", "Bullet_002", "Bullet_003", "Bullet_004"];
         var blow = ["Muzzle_000", "Muzzle_001", "Muzzle_002", "Muzzle_003", "Muzzle_004"];
-        this.buildAnimation("idle", "assets/games/player/Objects", idle, 0.25);
+        this.buildAnimation("idle", "assets/games/player/Objects", idle, 0.075);
         this.buildAnimation("blow", "assets/games/player/Objects", blow, 0.075);
         this.playAnimation("idle", true);
     },
