@@ -56,9 +56,16 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
         var dx = -this.velocity.x * dt;
         if(this.velocity.x > 0){
             this.velocity.x = Math.max(0, this.velocity.x + dx);
+            this.setPositionX(Math.min(0, this.getPositionX()));
         }
         else if(this.velocity.x < 0){
             this.velocity.x = Math.min(0, this.velocity.x + dx);
+            this.setPositionX(Math.max(window.cocos.cc.director.getWinSize().width - this.totalSize.width, this.getPositionX()));
+        }
+
+        //GUI: avoids little flickerings
+        if(Math.abs(this.velocity.x) < 1){
+            this.velocity.x = 0;
         }
     }
 });

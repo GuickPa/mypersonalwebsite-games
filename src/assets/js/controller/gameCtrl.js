@@ -44,10 +44,10 @@
                             var size = cc.director.getWinSize();
                             var tileset = cc.TMXTiledMap.create("assets/games/tiles/scifi/level00.tmx");
                             tileset.setTag(0);
-                            this.tilemap = tileset;
-                            this.addChild(tileset, 0);
                             var tscale = size.height/(9*256);
                             tileset.setScale(tscale);
+                            this.setTilemap(tileset);
+                            this.addChild(tileset, 0);
                             //GUI: wait a while, then load objects
                             //GUI: avoid bug that makes objects looking for tiles before tilemap was completely loaded
                             cc.director.getScheduler().scheduleCallbackForTarget(this, this.onLoadTiledMap, 0.25, false, 0, false);
