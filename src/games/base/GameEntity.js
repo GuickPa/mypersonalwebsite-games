@@ -434,6 +434,10 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     getBackInLife: function(){
         
     },
+    
+    isAlive: function(){
+        return this.lifePoints > 0;
+    },
 
     ////////////////////////////////////////////////////////////////////
     //GUI: events on movements

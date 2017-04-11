@@ -18,7 +18,7 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         self.speed = 100;
         self.setTag(window.cocos.cc.kGameEntityPlayerTag);
         self.weapon = window.cocos.cc.RobotLaserGun.create(self, window.cocos.cc.kGameEntityEnemyTag);
-        self.lifePoints = 10;
+        self.lifePoints = 1;
         return true;
     },
 
@@ -111,59 +111,67 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
     },
 
     onEndDeadAnimation: function(){
-
+        //GUI: broadcast dead event
+        var gm = window.cocos.cc.game.gameManager;
+        if(gm != null){
+            gm.broadcastEvent(window.cocos.cc.GameManagerEvents.kGameManagerEventPlayerDead, this);
+        }
     },
 
     ////////////////////////////////////////////////////////////////////
     //GUI: handling keyboard events
     onKeyPressed: function (key, event) {
-        switch (key) {
-            case 32:
-                //GUI: space
-                this.fire();
-                break;
-            case 37:
-                //GUI: left
-                this.velocity.x = -this.speed;
-                this.setFlippedX(true);
-                if(this.onGround) {
-                    this.playAnimation("run", true);
+        if(this.isAlive()) {
+            switch (key) {
+                case 32:
+                    //GUI: space
+                    this.fire();
+                    break;
+                case 37:
+                    //GUI: left
+                    this.velocity.x = -this.speed;
+                    this.setFlippedX(true);
+                    if (this.onGround) {
+                        this.playAnimation("run", true);
 
-                }
-                break;
-            case 38:
-                //GUI: Up
-                if(this.onGround) {
-                    this.onGround = false;
-                    this.velocity.y += this.jumpForce;
-                    this.playAnimation("jump", false);
-                }
-                break;
-            case 39:
-                //GUI: right
-                this.velocity.x = this.speed;
-                this.setFlippedX(false);
-                if(this.onGround) {
-                    this.playAnimation("run", true);
-                }
-                break;
+                    }
+                    break;
+                case 38:
+                    //GUI: Up
+                    if (this.onGround) {
+                        this.onGround = false;
+                        this.velocity.y += this.jumpForce;
+                        this.playAnimation("jump", false);
+                    }
+                    break;
+                case 39:
+                    //GUI: right
+                    this.velocity.x = this.speed;
+                    this.setFlippedX(false);
+                    if (this.onGround) {
+                        this.playAnimation("run", true);
+                    }
+                    break;
+            }
         }
     },
 
     onKeyReleased: function (key, event) {
-        switch (key) {
-            case 37:
-                this.velocity.x = 0;
-                if(this.onGround) {
-                    this.playAnimation("idle", true);
-                }
-                break;
-            case 39:
-                this.velocity.x = 0;
-                if(this.onGround) {
-                    this.playAnimation("idle", true);
-                }
-                break;
+        if(this.isAlive()) {
+            switch (key) {
+                case 37:
+                    this.velocity.x = 0;
+                    if (this.onGround) {
+                        this.playAnimation("idle", true);
+                    }
+                    break;
+                case 39:
+                    this.velocity.x = 0;
+                    if (this.onGround) {
+                        this.playAnimation("idle", true);
+                    }
+                    break;
+            }
         }
     },
 
