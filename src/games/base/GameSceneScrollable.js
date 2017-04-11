@@ -6,6 +6,7 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
     leftBound: 0,
     rightBound: 0,
     scrollSpeed: 0,
+    velocity: null,
 
     ctor:function () {
         window.cocos.cc.GameScene.prototype.ctor.call(this);
@@ -16,6 +17,7 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
         this.nodeToFollow = null;
         this.leftBound = 0;
         this.rightBound = 0;
+        this.velocity = window.cocos.cc.p(0,0);
     },
 
     setNodeToFollow: function(node, scrollSpeed){
@@ -40,11 +42,23 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
             var nx = this.nodeToFollow.getPosition().x + this.getPosition().x;
             //GUI: if node is beyond a boundary, scrolls
             if(nx < this.leftBound){
-                this.setPositionX(Math.min(0, this.getPositionX() + (this.scrollSpeed * dt)));
+                this.velocity.x = this.scrollSpeed;
+                //this.setPositionX(Math.min(0, this.getPositionX() + (this.scrollSpeed * dt)));
             }
             else if (nx > this.rightBound){
-                this.setPositionX(this.getPositionX() - (this.scrollSpeed * dt));
+                this.velocity.x = -this.scrollSpeed;
+                //this.setPositionX(this.getPositionX() - (this.scrollSpeed * dt));
             }
+        }
+        //GUI: update position
+        this.setPositionX(this.getPositionX() + (this.velocity.x * dt));
+        //GUI: deceleration
+        var dx = -this.velocity.x * dt;
+        if(this.velocity.x > 0){
+            this.velocity.x = Math.max(0, this.velocity.x + dx);
+        }
+        else if(this.velocity.x < 0){
+            this.velocity.x = Math.min(0, this.velocity.x + dx);
         }
     }
 });
