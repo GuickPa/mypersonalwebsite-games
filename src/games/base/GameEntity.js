@@ -1,8 +1,10 @@
 /**
  * Created by guglielmo on 29/03/17.
  */
-window.cocos.cc.kGameEntityPlayerTag = 0x100;
+window.cocos.cc.kGameEntityPlayerTag = 0x10;
+window.cocos.cc.kGameEntityDeadPlayerTag = 0x100;
 window.cocos.cc.kGameEntityEnemyTag = 0x1000;
+window.cocos.cc.kGameEntityDeadEnemyTag = 0x10000;
 
 //GUI: GameEntity is the base entity for all the games
 window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
@@ -25,6 +27,8 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     sceneTilemap: null,
     //GUI: weapon
     weapon: null,
+    //GUI: life points
+    lifePoints: 1,
 
     ctor: function (fileName, rect, rotated) {
         var self = this;
@@ -48,6 +52,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         self.collisionSize = new window.cocos.cc.Size(self._getWidth(), self._getHeight());
         self.velocity = window.cocos.cc.p(0,0);
         self.gravity = window.cocos.cc.p(0,-10);
+        self.lifePoints = 1;
         //GUI: set tilemap
         var scene = window.cocos.cc.director.getRunningScene();
         if(scene){
@@ -165,13 +170,15 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         //GUI: getting tileset lines which this.bb intersect with (opposite axis)
         var halfH = (this.collisionSize.height / 2 * this.getScaleY());
         var max = obstacles.getLayerSize().height -1;
-        var minY = Math.max(0, Math.round((p.y - halfH) / tileSize.height)); //GUI: todo: consider using Math.round
-        var maxY = Math.min(max - 1, Math.round((p.y + halfH) / tileSize.height)); //GUI: todo: consider using Math.round
+        var lowerBound = Math.round((p.y - halfH) / tileSize.height);
+        var upperBound = Math.round((p.y + halfH) / tileSize.height);
+        var minY = Math.max(0, lowerBound); //GUI: todo: consider using Math.round
+        var maxY = Math.min(max, upperBound); //GUI: todo: consider using Math.round
         var colX = Math.round(p.x / tileSize.width);
         //GUI: first check if it is on slope
         var tp = window.cocos.cc.p(colX, max - minY);
-        var tile = obstacles.getTileAt(tp);
-        if (tile && this.checkTile(tile)) {
+        var currentTile = obstacles.getTileAt(tp);
+        if (currentTile && this.checkTile(tile)) {
             //GUI: get tile's properties
             var gid = obstacles.getTileGIDAt(tp);
             var properties = this.sceneTilemap.getPropertiesForGID(gid);
@@ -183,7 +190,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             }
             //GUI: if it is not on a slope, but it is closer to tile's upper surface, adjust y value (prevents problem when climbing a slope and it ends to be near, but under, tile'surface)
             else{
-                var tileUpperY = (tile.getPosition().y * this.sceneTilemap.getScaleY()) + tileSize.height;
+                var tileUpperY = (currentTile.getPosition().y * this.sceneTilemap.getScaleY()) + tileSize.height;
                 if(Math.abs((this.getPosition().y - halfH) - tileUpperY) <= tileSize.height/20){
                     this.setPositionY(tileUpperY + halfH);
                 }
@@ -302,8 +309,8 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     moveY: function(dx, dy, dt, p, obstacles, tileSize){
         //GUI: getting tileset lines which this.bb intersect with (opposite axis)
         var halfW = (this.collisionSize.width / 2 * Math.abs(this.getScaleX()));
-        var minX = Math.round((p.x - halfW) / tileSize.width); //GUI: todo: consider using Math.round
-        var maxX = Math.round((p.x + halfW) / tileSize.width); //GUI: todo: consider using Math.round
+        var minX = Math.floor((p.x - halfW) / tileSize.width); //GUI: todo: consider using Math.round
+        var maxX = Math.floor((p.x + halfW) / tileSize.width); //GUI: todo: consider using Math.round
         var rowY = Math.round(p.y / tileSize.height);
         var max = obstacles.getLayerSize().height - 1;
         //GUI: scan along these rows and towards the direction to find obstacles
@@ -407,6 +414,25 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             this.setPositionY(p.y + step);
             return;
         }
+    },
+
+    ////////////////////////////////////////////////////////////////////
+    //GUI: handling life points
+    onWeaponHit: function(weapon, damagePoints){
+        //GUI: update life points
+        this.lifePoints = this.lifePoints - damagePoints;
+        //GUI: zero life points event
+        if(this.lifePoints <= 0){
+            this.onZeroLifePoints();
+        }
+    },
+    
+    onZeroLifePoints: function(){
+        
+    },
+    
+    getBackInLife: function(){
+        
     },
 
     ////////////////////////////////////////////////////////////////////

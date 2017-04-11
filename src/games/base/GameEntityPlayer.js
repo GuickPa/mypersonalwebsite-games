@@ -17,7 +17,8 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         window.cocos.cc.GameEntity.prototype.init.call(self);
         self.speed = 100;
         self.setTag(window.cocos.cc.kGameEntityPlayerTag);
-        self.weapon = window.cocos.cc.RobotLaserGun.create();
+        self.weapon = window.cocos.cc.RobotLaserGun.create(self, window.cocos.cc.kGameEntityEnemyTag);
+        self.lifePoints = 10;
         return true;
     },
 
@@ -34,12 +35,15 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         var jump = ["Jump (1)", "Jump (2)", "Jump (3)", "Jump (4)", "Jump (5)", "Jump (6)", "Jump (7)", "Jump (8)", "Jump (9)", "Jump (10)"];
         var shoot = ["Shoot (1)", "Shoot (2)", "Shoot (3)", "Shoot (4)"];
         var runShoot = ["RunShoot (1)", "RunShoot (2)", "RunShoot (3)", "RunShoot (4)", "RunShoot (5)", "RunShoot (6)", "RunShoot (7)", "RunShoot (8)", "RunShoot (9)"];
+        var dead = ["Dead (1)", "Dead (2)", "Dead (3)", "Dead (4)", "Dead (5)", "Dead (6)", "Dead (7)", "Dead (8)", "Dead (9)", "Dead (10)"];
 
         this.buildAnimation("idle", "assets/games/player", idle, 0.12);
         this.buildAnimation("run", "assets/games/player", run);
         this.buildAnimation("jump", "assets/games/player", jump, 0.05);
         this.buildAnimation("shoot", "assets/games/player", shoot);
         this.buildAnimation("runShoot", "assets/games/player", runShoot);
+        this.buildAnimation("dead", "assets/games/player", dead);
+        this.buildAnimation("reborn", "assets/games/player", dead.reverse());
     },
 
     buildController: function() {
@@ -92,6 +96,22 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
             this.playAnimation("idle", true);
         else
             this.playAnimation("run", true);
+    },
+
+    ////////////////////////////////////////////////////////////////////
+    //GUI: handling life points
+    onWeaponHit: function(weapon, damagePoints){
+        this._super(weapon, damagePoints);
+    },
+
+    onZeroLifePoints: function(){
+        //GUI: play fire animation
+        this.playAnimation("dead", false, this.onEndDeadAnimation, this);
+        this.setTag(window.cocos.cc.kGameEntityDeadPlayerTag);
+    },
+
+    onEndDeadAnimation: function(){
+
     },
 
     ////////////////////////////////////////////////////////////////////

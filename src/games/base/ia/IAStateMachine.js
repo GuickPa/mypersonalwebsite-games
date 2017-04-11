@@ -24,6 +24,9 @@ window.cocos.cc.IAStateMachine = window.cocos.cc.Class.extend({
         this.states[window.cocos.cc.kIAStateIdle] = window.cocos.cc.IAStateIdle.create();
         this.states[window.cocos.cc.kIAStateWalk] = window.cocos.cc.IAStateWalk.create();
         this.states[window.cocos.cc.kIAStateAttack] = window.cocos.cc.IAStateAttack.create();
+        this.states[window.cocos.cc.kIAStateDeath] = window.cocos.cc.IAStateDeath.create();
+        this.states[window.cocos.cc.kIAStateDead] = window.cocos.cc.IAStateDead.create();
+        this.states[window.cocos.cc.kIAStateReborn] = window.cocos.cc.IAStateReborn.create();
         //GUI: set entity to states
         for(var key in this.states){
             this.states[key].setEntity(this.entity);

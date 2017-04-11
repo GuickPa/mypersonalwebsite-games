@@ -16,13 +16,15 @@ window.cocos.cc.EnemyMale = window.cocos.cc.Enemy.extend({
     init: function(){
         var self = this;
         window.cocos.cc.Enemy.prototype.init.call(self);
+        self.weapon = window.cocos.cc.ZombieClaw.create(self, window.cocos.cc.kGameEntityPlayerTag);
+        self.lifePoints = 6;
         return true;
     },
 
     onEnter: function(){
         this._super();
         this.collisionSize = new window.cocos.cc.Size(276, 488);
-        this.stateMachine.changeState(window.cocos.cc.kIAStateWalk);
+        this.stateMachine.changeState(window.cocos.cc.kIAStateIdle);
     },
 
     buildAnimations: function(){
@@ -36,6 +38,7 @@ window.cocos.cc.EnemyMale = window.cocos.cc.Enemy.extend({
         this.buildAnimation("walk", "assets/games/enemy/male", walk);
         this.buildAnimation("attack", "assets/games/enemy/male", attack, 0.05);
         this.buildAnimation("dead", "assets/games/enemy/male", dead);
+        this.buildAnimation("reborn", "assets/games/enemy/male", dead.reverse());
     },
 
     update: function (dt) {

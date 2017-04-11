@@ -12,6 +12,7 @@ window.cocos.cc.Bullet = window.cocos.cc.GameEntity.extend({
     //GUI: max distance
     range: 0,
     currentDistance: 0,
+    damagePoints: 0,
 
     ctor: function (fileName, rect, rotated) {
         //GUI: call super
@@ -45,7 +46,16 @@ window.cocos.cc.Bullet = window.cocos.cc.GameEntity.extend({
         this.velocity.y = this.speed * this.shootDirection.y;
         //GUI: flip based on direction
         this.setFlippedX(this.velocity.x < 0);
+        //GUI: actually should be rotated, not flipped!
         this.setFlippedY(this.velocity.y < 0);
+    },
+    
+    setDamagePoints: function(damagePoints){
+        this.damagePoints = damagePoints;
+    },
+    
+    getDamagePoints: function(){
+        return this.damagePoints;
     },
 
     //GUI: override: do no checks for tiles
@@ -79,12 +89,16 @@ window.cocos.cc.Bullet = window.cocos.cc.GameEntity.extend({
         }
     },
 
+    moveY: function(dy, dt, p, obstacles, tileSize){
+        //GUI: no movement on this axis for now
+    },
+
     checkForHitWithEntities: function(tagMask){
         //GUI: if tagMask is null, it makes hit with all the entities
         tagMask = tagMask == null ? tagMask = 0xFFFFFFFF : tagMask;
         //GUI: build this collision rect, based on position and collision rect
-        var halfW = this._getWidth() * this.getScaleX() / 2;
-        var halfH = this._getHeight() * this.getScaleY() / 2;
+        var halfW = this.collisionSize.width * this.getScaleX() / 2;
+        var halfH = this.collisionSize.height * this.getScaleY() / 2;
         var rect = window.cocos.cc.rect(this.getPosition().x - halfW, this.getPosition().y - halfH, halfW * 2, halfH * 2);
         var scene = window.cocos.cc.director.getRunningScene();
         if (scene) {
@@ -93,9 +107,11 @@ window.cocos.cc.Bullet = window.cocos.cc.GameEntity.extend({
                 var child = children[index];
                 var tag = child.getTag();
                 if((tagMask & tag) != 0 && tag != window.cocos.cc.NODE_TAG_INVALID){
+                    var eWidth = child.collisionSize != null ? child.collisionSize.width : child._getWidth();
+                    var eHeight = child.collisionSize != null ? child.collisionSize.height : child._getHeight();
                     //GUI: check if collision rect intersects
-                    var eHalfW = child._getWidth() * child.getScaleX() / 2;
-                    var eHalfH = child._getHeight() * child.getScaleY() / 2;
+                    var eHalfW = eWidth * child.getScaleX() / 2;
+                    var eHalfH = eHeight * child.getScaleY() / 2;
                     var eRect = window.cocos.cc.rect(child.getPosition().x - eHalfW, child.getPosition().y - eHalfH, eHalfW * 2, eHalfH * 2);
                     if(window.cocos.cc.rectIntersectsRect(rect, eRect)){
                         this.onHitEvent(child);
@@ -108,15 +124,19 @@ window.cocos.cc.Bullet = window.cocos.cc.GameEntity.extend({
 
     onHitEvent: function(entity){
         this._super(entity);
+        if(entity != null){
+            // if(entity.onHitEvent != null){
+            //     entity.onHitEvent(this);
+            // }
+            if(entity.onWeaponHit != null){
+                entity.onWeaponHit(this, this.getDamagePoints())
+            }
+        }
         this.hitEntity = true;
     },
 
     onEndBlow: function(){
         this.shouldBeRemoved = true;
-    },
-
-    moveY: function(dy, dt, p, obstacles, tileSize){
-        //GUI: no movement on this axis for now
     }
 
 });
@@ -151,12 +171,122 @@ window.cocos.cc.RobotBullet = window.cocos.cc.Bullet.extend({
         }
     },
 
+    moveX: function(dx, dy, dt, p, obstacles, tileSize){
+        //GUI: getting tileset lines which this.bb intersect with (opposite axis)
+        var max = obstacles.getLayerSize().height -1;
+        var minY = Math.max(0, Math.floor(p.y/ tileSize.height)); //GUI: todo: consider using Math.round
+        var colX = Math.round(p.x / tileSize.width);
+        //GUI: scan along these rows and towards the direction to find obstacles
+        //then find the distance with the closest one: movement is the minimum between distance and this'step
+        //GUI: scroll rows
+        var colMax = Math.min(obstacles.getLayerSize().width - 1, colX);
+        if (dx > 0) {
+            //GUI: getting forward face x-value
+            var fx = p.x + ((this.collisionSize.width / 2) * this.getScaleX());
+            var min = 100000.0;
+            //GUI: scroll cols
+            for (var col = colX; col <= colMax; col++) {
+                var tp = window.cocos.cc.p(col, max - minY)
+                var tile = obstacles.getTileAt(tp);
+                if (tile) {
+                    //GUI: get tile's properties
+                    var gid = obstacles.getTileGIDAt(tp);
+                    var properties = this.sceneTilemap.getPropertiesForGID(gid);
+                    //GUI: check for slopes
+                    if(properties != null && properties["sr"] != null && properties["sl"] != null){
+                        //GUI: calc left and right of tile
+                        var tileL = tile.getPosition().x * this.sceneTilemap.getScaleX();
+                        var tileW = tile._getWidth() * this.sceneTilemap.getScaleX();
+                        //GUI: calc difference between position and this'position.x
+                        var dsy = (this.getPosition().x - tileL) / tileW;
+                        if(0 <= dsy && dsy <= 1) {
+                            var sl = parseFloat(properties["sl"]);
+                            var bottomY = this.getPosition().y ;
+                            var slopeY = (tile.getPosition().y + (tile._getHeight() * sl)) * this.sceneTilemap.getScaleY();
+                            //GUI: if slope is less than bottom of this, or is behind, go on
+                            if (bottomY >= slopeY || this.getPosition().x >= (tile.getPosition().x * this.sceneTilemap.getScaleX())) {
+                                min = dx;
+                                this.setPositionX(p.x + min);
+                                return;
+                            }
+                            else {
+                                //GUI: if going right, distance is with tile' x pos and this'front face
+                                var dist = ((tile.getPosition().x - 1) * this.sceneTilemap.getScaleX()) - fx;
+                                min = Math.min(Math.max(0, dist), min);
+                            }
+                        }
+                    }
+                    else {
+                        //GUI: if going right, distance is with tile' x pos and this'front face
+                        var dist = ((tile.getPosition().x - 1) * this.sceneTilemap.getScaleX()) - fx;
+                        min = Math.min(Math.max(0, dist), min);
+                    }
+                }
+            }
+
+            var step = Math.min(min, dx);
+            this.setPositionX(p.x + step);
+            if(min <= dx){
+                this.onHitEvent();
+            }
+            return;
+        }
+        else if(dx < 0){
+            //GUI: getting forward face x-value
+            var fx = p.x - ((this.collisionSize.width / 2) * this.getScaleX());
+            var min = -100000.0;
+            //GUI: scroll rows
+            var colMin = Math.max(0, colX);
+            for (var col = colX; col <= colMax; col++) {
+                var tp = window.cocos.cc.p(col, max - minY);
+                var tile = obstacles.getTileAt(tp);
+                if (tile) {
+                    //GUI: get tile's properties
+                    var gid = obstacles.getTileGIDAt(tp);
+                    var properties = this.sceneTilemap.getPropertiesForGID(gid);
+                    //GUI: check for slopes
+                    if(properties != null && properties["sr"] != null && properties["sl"] != null){
+                        //GUI: calc left and right of tile
+                        var tileL = tile.getPosition().x * this.sceneTilemap.getScaleX();
+                        var tileW = tileSize.width;
+                        //GUI: calc difference between position and this'position.x
+                        var dsy = (this.getPosition().x - tileL) / tileW;
+                        if(0 <= dsy && dsy <= 1) {
+                            var sr = parseFloat(properties["sr"]);
+                            var bottomY = this.getPosition().y;
+                            var slopeY = (tile.getPosition().y + (tile._getHeight() * sr)) * this.sceneTilemap.getScaleY();
+                            //GUI: if slope is less than bottom of this, or is behind, go on
+                            if (bottomY >= slopeY || this.getPosition().x <= ((tile.getPosition().x * this.sceneTilemap.getScaleX()) + tileSize.width)) {
+                                this.setPositionX(p.x + Math.max(min, dx));
+                                return;
+                            }
+                            else {
+                                //GUI: if going left, distance is with tile' x pos + tile's width and this'back face
+                                var dist = (((tile.getPosition().x + 1) * this.sceneTilemap.getScaleX()) + tileSize.width) - fx;//GUI: size already scaled
+                                min = Math.max(Math.min(0, dist), min);
+                            }
+                        }
+                    }
+                    else {
+                        //GUI: if going left, distance is with tile' x pos + tile's width and this'back face
+                        var dist = (((tile.getPosition().x + 1) * this.sceneTilemap.getScaleX()) + tileSize.width) - fx;//GUI: size already scaled
+                        min = Math.max(Math.min(0, dist), min);
+                    }
+                }
+
+            }
+            var step = Math.max(min, dx);
+            this.setPositionX(p.x + step);
+            if(min >= dx){
+                this.onHitEvent();
+            }
+            return;
+        }
+    },
+
     onHitEvent: function(entity){        
         //GUI: call super first
         this._super(entity);
-        // if(entity && (entity.getTag() & window.cocos.cc.kGameEntityEnemyTag)){
-        //     this.setPositionX(entity.getPositionX());
-        // }
         //GUI: play blow animation and set a callback for action after end of explosion
         this.playAnimation("blow", false, function(){this.onEndBlow()});
     },

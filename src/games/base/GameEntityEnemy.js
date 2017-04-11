@@ -14,9 +14,8 @@ window.cocos.cc.Enemy = window.cocos.cc.GameEntity.extend({
     },
 
     init: function(){
-        var self = this;
-        window.cocos.cc.GameEntity.prototype.init.call(self);
-        self.setTag(window.cocos.cc.kGameEntityEnemyTag);
+        window.cocos.cc.GameEntity.prototype.init.call(this);
+        this.setTag(window.cocos.cc.kGameEntityEnemyTag);
         this.stateMachine = window.cocos.cc.IAStateMachine.create(this);
         return true;
     },
@@ -51,6 +50,30 @@ window.cocos.cc.Enemy = window.cocos.cc.GameEntity.extend({
             this.stateMachine.onHitEvent(entity);
         }
     },
+
+    ////////////////////////////////////////////////////////////////////
+    //GUI: handling life points
+    onWeaponHit: function(weapon, damagePoints){
+        this._super(weapon, damagePoints);
+    },
+
+    onZeroLifePoints: function(){
+        //GUI: change tag to avoid collisions as it was active
+        this.setTag(window.cocos.cc.kGameEntityDeadEnemyTag);
+        if(this.stateMachine){
+            this.stateMachine.changeState(window.cocos.cc.kIAStateDeath);
+        }
+    },
+
+    getBackInLife: function(){
+        this.setTag(window.cocos.cc.kGameEntityEnemyTag);
+        this.lifePoints = 6;
+        if(this.stateMachine){
+            this.stateMachine.changeState(window.cocos.cc.kIAStateIdle);
+        }
+        console.log("getBackInLife", this.lifePoints);
+    },
+
 });
 
 window.cocos.cc.Enemy.create = function (fileName, rect, rotated) {
