@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="16" height="9" tilewidth="256" tileheight="256" nextobjectid="20">
+ <tileset firstgid="1" name="Tile (5)" tilewidth="256" tileheight="256" tilecount="1" columns="1">
+  <image source="Tile (5).png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="2" name="Tile (2)" tilewidth="256" tileheight="256" tilecount="1" columns="1">
+  <image source="Tile (2).png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="3" name="Box" tilewidth="256" tileheight="256" tilecount="1" columns="1">
+  <image source="Box.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="4" name="Tile (16)" tilewidth="256" tileheight="256" tilecount="1" columns="1">
+  <properties>
+   <property name="sl" type="float" value="1"/>
+   <property name="sr" type="float" value="0"/>
+  </properties>
+  <image source="Tile (16).png" width="256" height="256"/>
+  <tile id="0">
+   <properties>
+    <property name="sl" type="float" value="0"/>
+    <property name="sr" type="float" value="1"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="5" name="Tile (17)" tilewidth="256" tileheight="256" tilecount="1" columns="1">
+  <properties>
+   <property name="sl" type="float" value="0"/>
+   <property name="sr" type="float" value="1"/>
+  </properties>
+  <image source="Tile (17).png" width="256" height="256"/>
+  <tile id="0">
+   <properties>
+    <property name="sl" type="float" value="1"/>
+    <property name="sr" type="float" value="0"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="6" name="DoorOpen" tilewidth="280" tileheight="464" tilecount="1" columns="1">
+  <image source="DoorOpen.png" width="280" height="464"/>
+ </tileset>
+ <tileset firstgid="7" name="DoorLocked" tilewidth="280" tileheight="464" tilecount="1" columns="1">
+  <image source="DoorLocked.png" width="280" height="464"/>
+ </tileset>
+ <layer name="background" width="16" height="9">
+  <data encoding="csv">
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+</data>
+ </layer>
+ <layer name="Livello tile 3" width="16" height="9">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,6,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer name="obstacle" width="16" height="9">
+  <data encoding="csv">
+3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
+</data>
+ </layer>
+ <objectgroup name="objects">
+  <object id="13" x="3876" y="1624" width="204" height="476">
+   <properties>
+    <property name="action" value="changeLevel"/>
+    <property name="param0" value="level00"/>
+   </properties>
+  </object>
+  <object id="17" name="entryPoint" x="447" y="1935" width="40" height="96"/>
+ </objectgroup>
+</map>

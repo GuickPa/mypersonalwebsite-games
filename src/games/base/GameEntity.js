@@ -154,6 +154,9 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             else{
                 this.setPosition(p.x + dx, p.y + dy);
             }
+
+            //GUI: check for objects in layer
+            this.checkForObjects();
         }
         //GUI: no tiles: just move
         else{
@@ -414,6 +417,46 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             this.setPositionY(p.y + step);
             return;
         }
+    },
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //GUI: handle interactive objects in layer
+    //GUI: check for object layer, then check for objects in layer
+    checkForObjects: function(){
+        if(this.sceneTilemap != null) {
+            //GUI: check with obstacles
+            var objectsGroups = this.sceneTilemap.getObjectGroups();
+            if(objectsGroups != null){
+                //GUI: scroll the list of groups
+                for(var i = 0; i < objectsGroups.length; i++){
+                    var group = objectsGroups[i];
+                    //GUI: interactive objects layer
+                    if(group.groupName == 'objects'){
+                        this.checkForObjectsInObjectGroup(group);
+                    }
+                }
+            }
+            else{
+                
+            }
+        }
+    },
+
+    checkForObjectsInObjectGroup: function(group){
+        var p = this.getPosition();
+        var sf = this.sceneTilemap.getScale();
+        for(var i = 0; i < group._objects.length; i++){
+            var obj = group._objects[i];
+            var rect = window.cocos.cc.rect(obj.x * sf, obj.y * sf, obj.width * sf, obj.height * sf);
+            if(window.cocos.cc.rectContainsPoint(rect,p)){
+                this.triggerObjectAction(obj);
+            }
+        }
+    },
+    
+    triggerObjectAction: function(obj){
+        //GUI: TODO: make a tail of "scripts" to be executed at the end of this update cycle
+        console.log(obj.action, obj.param0);
     },
 
     ////////////////////////////////////////////////////////////////////

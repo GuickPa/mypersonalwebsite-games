@@ -26,6 +26,14 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         this._super();
         this.collisionSize = new window.cocos.cc.Size(276, 488);
         this.playAnimation("idle", true);
+
+        //GUI: ask to current scene to set its start position (need to be done here, after player was loaded)
+        var scene = window.cocos.cc.director.getRunningScene();
+        if(scene != null){
+            if(typeof scene.setPlayerStartPosition != 'undefined'){
+                scene.setPlayerStartPosition(this);
+            }
+        }
     },
 
     buildAnimations: function(){

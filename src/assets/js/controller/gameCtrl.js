@@ -58,8 +58,8 @@
                             var tscale = size.height/(9*256);
                             var sprite = cc.Player.create("assets/games/player/Idle (1).png");
                             sprite.setScale(0.2);
-                            sprite.setPosition(2048 * size.height/(9*256), 1536 * size.height/(9*256));
-                            this.addChild(sprite, 1);
+                            //sprite.setPosition(2048 * size.height/(9*256), 1536 * size.height/(9*256));
+                            this.addChild(sprite, 1);                            
                             //GUI: adding an enemy
                             // var enemy = cc.EnemyMale.create("assets/games/enemy/male/Idle (1).png");
                             // enemy.setScale(0.25);

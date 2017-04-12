@@ -26,5 +26,37 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
         else{
             this.totalSize = window.cocos.cc.director.getWinSize();
         }
+    },
+
+    setPlayerStartPosition: function(player){
+        if(player != null) {
+            if (this.tilemap != null) {
+                //GUI: check with obstacles
+                var objectsGroups = this.tilemap.getObjectGroups();
+                if (objectsGroups != null) {
+                    var sf = this.tilemap.getScale();
+                    //GUI: scroll the list of groups
+                    for (var i = 0; i < objectsGroups.length; i++) {
+                        var group = objectsGroups[i];
+                        //GUI: interactive objects layer
+                        if (group.groupName == 'objects') {
+                            for (var i = 0; i < group._objects.length; i++) {
+                                var obj = group._objects[i];
+                                if (obj.name == "entryPoint") {
+                                    player.setPosition(new window.cocos.cc.p(obj.x * sf, obj.y  * sf + player.collisionSize.height/2 * player.getScaleY()));
+                                    console.log(player.getPosition(), player.collisionSize.height);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+
+                }
+            }
+
+            player.setPosition(0, 0);
+        }
     }
 });
