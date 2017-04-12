@@ -28,8 +28,8 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
         }
     },
 
-    setPlayerStartPosition: function(player){
-        if(player != null) {
+    setEntityPosition: function(entity, positionName){
+        if(entity != null) {
             if (this.tilemap != null) {
                 //GUI: check with obstacles
                 var objectsGroups = this.tilemap.getObjectGroups();
@@ -42,9 +42,8 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
                         if (group.groupName == 'objects') {
                             for (var i = 0; i < group._objects.length; i++) {
                                 var obj = group._objects[i];
-                                if (obj.name == "entryPoint") {
-                                    player.setPosition(new window.cocos.cc.p(obj.x * sf, obj.y  * sf + player.collisionSize.height/2 * player.getScaleY()));
-                                    console.log(player.getPosition(), player.collisionSize.height);
+                                if (obj.name == positionName) {
+                                    entity.setPosition(new window.cocos.cc.p(obj.x * sf, obj.y  * sf + entity.collisionSize.height/2 * entity.getScaleY()));                                    
                                     return;
                                 }
                             }
@@ -55,8 +54,8 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
 
                 }
             }
-
-            player.setPosition(0, 0);
+            //GUI: default position
+            entity.setPosition(0, 0);
         }
     }
 });

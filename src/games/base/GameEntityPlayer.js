@@ -30,8 +30,8 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         //GUI: ask to current scene to set its start position (need to be done here, after player was loaded)
         var scene = window.cocos.cc.director.getRunningScene();
         if(scene != null){
-            if(typeof scene.setPlayerStartPosition != 'undefined'){
-                scene.setPlayerStartPosition(this);
+            if(typeof scene.setEntityPosition != 'undefined'){
+                scene.setEntityPosition(this, "entryPoint");
             }
         }
     },
