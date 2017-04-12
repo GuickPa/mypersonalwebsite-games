@@ -174,7 +174,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         var upperBound = Math.round((p.y + halfH) / tileSize.height);
         var minY = Math.max(0, lowerBound); //GUI: todo: consider using Math.round
         var maxY = Math.min(max, upperBound); //GUI: todo: consider using Math.round
-        var colX = Math.round(p.x / tileSize.width);
+        var colX = Math.floor(p.x / tileSize.width);
         //GUI: first check if it is on slope
         var tp = window.cocos.cc.p(colX, max - minY);
         var currentTile = obstacles.getTileAt(tp);
@@ -203,7 +203,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             var fx = p.x + ((this.collisionSize.width / 2) * this.getScaleX());
             var min = 100000.0;
             //GUI: scroll rows
-            var colMax = Math.min(obstacles.getLayerSize().width - 1, colX + (halfH/tileSize.width));
+            var colMax = Math.round(Math.min(obstacles.getLayerSize().width - 1, colX + (halfH/tileSize.width)));
             for (var i = Math.min(max, max - minY); i >= Math.max(0,max - maxY); i--) {
                 //GUI: scroll cols
                 for (var col = colX; col <= colMax; col++) {
@@ -232,14 +232,14 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                 }
                                 else {
                                     //GUI: if going right, distance is with tile' x pos and this'front face
-                                    var dist = ((tile.getPosition().x - 1) * this.sceneTilemap.getScaleX()) - fx;
+                                    var dist = Math.round(((tile.getPosition().x - 1) * this.sceneTilemap.getScaleX()) - fx);
                                     min = Math.min(Math.max(0, dist), min);
                                 }
                             }
                         }
                         else {
                             //GUI: if going right, distance is with tile' x pos and this'front face
-                            var dist = ((tile.getPosition().x - 1) * this.sceneTilemap.getScaleX()) - fx;
+                            var dist = Math.round(((tile.getPosition().x - 1) * this.sceneTilemap.getScaleX()) - fx);
                             min = Math.min(Math.max(0, dist), min);
                         }
                     }
@@ -257,7 +257,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             var fx = p.x - ((this.collisionSize.width / 2) * this.getScaleX());
             var min = -100000.0;
             //GUI: scroll rows
-            var colMin = Math.max(0, colX - (halfH/tileSize.width));
+            var colMin = Math.floor(Math.max(0, colX - (halfH/tileSize.width)));
             for (var i = Math.min(max, max - minY); i >= Math.max(0,max - maxY); i--) {
                 for (var col = colX; col >= colMin; col--) {
                     var tp = window.cocos.cc.p(col, i)
@@ -284,14 +284,14 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                 }
                                 else {
                                     //GUI: if going left, distance is with tile' x pos + tile's width and this'back face
-                                    var dist = (((tile.getPosition().x + 1) * this.sceneTilemap.getScaleX()) + tileSize.width) - fx;//GUI: size already scaled
+                                    var dist = Math.round((((tile.getPosition().x + 1) * this.sceneTilemap.getScaleX()) + tileSize.width) - fx);//GUI: size already scaled
                                     min = Math.max(Math.min(0, dist), min);
                                 }
                             }
                         }
                         else {
                             //GUI: if going left, distance is with tile' x pos + tile's width and this'back face
-                            var dist = (((tile.getPosition().x + 1) * this.sceneTilemap.getScaleX()) + tileSize.width) - fx;//GUI: size already scaled
+                            var dist = Math.round((((tile.getPosition().x + 1) * this.sceneTilemap.getScaleX()) + tileSize.width) - fx);//GUI: size already scaled
                             min = Math.max(Math.min(0, dist), min);
                         }
                     }
@@ -366,7 +366,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                 //GUI: this is the position on slope - calc difference
                                 var y = tileY + floorY + 1;
                                 var dist = y - fy;
-                                min = dist;
+                                min = Math.round(dist);
                                 //GUI: if it is on slope, it is on ground
                                 if(dist >= dy) {
                                     this.velocity.y = 0;
@@ -387,7 +387,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                         }
                         else {
                             //GUI: if going down, distance is with tile'y pos + tile's height and this'bottom face
-                            var dist = (((tile.getPosition().y + 1) * this.sceneTilemap.getScaleY()) + tileSize.height) - fy;//GUI: size already scaled
+                            var dist = Math.round((((tile.getPosition().y + 1) * this.sceneTilemap.getScaleY()) + tileSize.height) - fy);//GUI: size already scaled
                             min = Math.max(Math.min(0, dist), min);
                             //GUI: if goind down, it is not on ground
                             //this.onGround = false;
