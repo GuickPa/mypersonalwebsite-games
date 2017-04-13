@@ -83,11 +83,13 @@ window.cocos.cc.GameEntitySpawnerObject = window.cocos.cc.GameEntitySceneObject.
                     var scene = window.cocos.cc.director.getRunningScene();
                     if(scene) {
                         var entity = template.createStandard();
-                        entity.addEventListener("load", this.onEntityLoaded, entity);
+                        //entity.addEventListener("load", this.onEntityLoaded, entity);
                         //GUI: set initial position. Position will be corrected after loading
                         entity.setPosition(this.getPosition().x, this.getPosition().y);
                         entity.setScale(this.entityScale);
                         scene.addChild(entity, 1);
+                        entity.setPosition(entity.getPosition().x, entity.getPosition().y + entity.collisionSize.height/2 * entity.getScaleY());
+                        //window.cocos.cc.director.getScheduler().scheduleCallbackForTarget(entity, this.onEntityLoaded, 0.1, false, 0, false);
                         this.currentCount++;
                     }
                 }
@@ -100,7 +102,8 @@ window.cocos.cc.GameEntitySpawnerObject = window.cocos.cc.GameEntitySceneObject.
 
     onEntityLoaded: function(){
         //GUI: because the call was made by passing entity as target, this now refers to the loaded entity, not to the spawner
-        this.setPosition(this.getPosition().x, this.getPosition().y + this.getContentSize().height/2 * this.getScaleY());
+        //console.log(this.getContentSize());
+        //this.setPosition(this.getPosition().x, this.getPosition().y + this.getContentSize().height/2 * this.getScaleY());
     }
 });
 
