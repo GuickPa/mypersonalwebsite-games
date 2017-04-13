@@ -37,7 +37,7 @@
             $scope.loadScene = function(){
                 var cc = window.cocos.cc;
                 //load resources
-                cc.LoaderScene.preload(["assets/games/tiles/scifi/level00.tmx", "assets/games/player/Idle (1).png"], function () {
+                cc.LoaderScene.preload(["assets/games/tiles/scifi/level00.tmx"], function () {
                     var MyScene = cc.GameSceneScrollable.extend({
                         onEnter:function () {
                             this._super();
@@ -50,7 +50,7 @@
                             this.addChild(tileset, 0);
                             //GUI: wait a while, then load objects
                             //GUI: avoid bug that makes objects looking for tiles before tilemap was completely loaded
-                            cc.director.getScheduler().scheduleCallbackForTarget(this, this.onLoadTiledMap, 0.25, false, 0, false);
+                            cc.director.getScheduler().scheduleCallbackForTarget(this, this.onLoadTiledMap, 0.5, false, 0, false);
                         },
 
                         onLoadTiledMap: function(){

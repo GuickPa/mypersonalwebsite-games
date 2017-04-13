@@ -63,7 +63,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,
-0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,7,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
@@ -81,10 +81,11 @@
 </data>
  </layer>
  <objectgroup name="objects">
-  <object id="13" x="7743" y="1368" width="204" height="456">
+  <object id="13" x="7763" y="1376" width="204" height="456">
    <properties>
     <property name="action" value="changeLevel"/>
-    <property name="param0" value="level01"/>
+    <property name="param0" value="assets/games/tiles/scifi/level01.tmx"/>
+    <property name="trigger" type="int" value="1"/>
    </properties>
   </object>
   <object id="15" name="entryPoint" x="447" y="1984" width="24" height="52"/>

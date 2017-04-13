@@ -126,6 +126,28 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         }
     },
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //GUI: handling interactive objects in layer
+    triggerObjectAction: function(obj){
+        //GUI: add scripts to game manager
+        //GUI: trigger action only if trigger is > 0
+        if(obj.trigger > 0) {
+            //GUI: mark object as triggered
+            obj.trigger = 0;
+            switch (obj.action) {
+                case "changeLevel":
+                {
+                    //GUI: change level: first pause game, then change level
+                    var pauseScript = window.cocos.cc.GameScript.create(window.cocos.cc.GameScriptType.PAUSEGAME, null);
+                    var changeScene = window.cocos.cc.GameScript.create(window.cocos.cc.GameScriptType.CHANGESCENE, [obj.param0]);
+                    window.cocos.cc.game.gameManager.addGameScript(pauseScript);
+                    window.cocos.cc.game.gameManager.addGameScript(changeScene);
+                }
+                    break;
+            }
+        }
+    },
+
     ////////////////////////////////////////////////////////////////////
     //GUI: handling keyboard events
     onKeyPressed: function (key, event) {

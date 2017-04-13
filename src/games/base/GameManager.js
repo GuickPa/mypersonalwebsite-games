@@ -91,13 +91,18 @@ window.cocos.cc.GameManager = window.cocos.cc.Class.extend({
     _className: "GameManager",
     //GUI: custom
     eventMaps: null,
+    //GUI: script list to be execute at the end of the loop
+    scriptList: null,
 
     ctor: function(){
         this.init();
     },
 
     init: function(){
-        this.eventMaps = {};        
+        this.eventMaps = {};
+        this.scriptList = [];
+        //GUI: add this to scheduler in order to call update at the end of update cycle
+        window.cocos.cc.director.getScheduler().scheduleUpdate(this, window.cocos.cc.Scheduler.PRIORITY_SYSTEM, false);
     },
 
     //////////////////////////////////////////////////////////////////////
@@ -135,6 +140,24 @@ window.cocos.cc.GameManager = window.cocos.cc.Class.extend({
                 return event.removeListener(object);
             }
         }
+    },
+
+    //////////////////////////////////////////////////////////////////////
+    //GUI: handling scripts
+    addGameScript: function(gameScript){
+        if(gameScript != null) {
+            this.scriptList.push(gameScript);
+        }
+    },
+
+    update: function(dt){
+        for(var i = 0; i < this.scriptList.length; i++){
+            var script = this.scriptList[i];
+            script.play();
+        }
+        
+        //GUI: clear the list
+        this.scriptList = [];
     }
 });
 

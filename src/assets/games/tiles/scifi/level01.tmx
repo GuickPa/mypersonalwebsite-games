@@ -84,7 +84,8 @@
   <object id="13" x="3876" y="1624" width="204" height="476">
    <properties>
     <property name="action" value="changeLevel"/>
-    <property name="param0" value="level00"/>
+    <property name="param0" value="assets/games/tiles/scifi/level00.tmx"/>
+    <property name="trigger" type="int" value="1"/>
    </properties>
   </object>
   <object id="17" name="entryPoint" x="447" y="1935" width="40" height="96"/>

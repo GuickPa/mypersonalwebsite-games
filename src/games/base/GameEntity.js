@@ -420,7 +420,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     },
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //GUI: handle interactive objects in layer
+    //GUI: handling interactive objects in layer
     //GUI: check for object layer, then check for objects in layer
     checkForObjects: function(){
         if(this.sceneTilemap != null) {
