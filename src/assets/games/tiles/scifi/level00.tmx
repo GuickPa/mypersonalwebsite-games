@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="9" tilewidth="256" tileheight="256" nextobjectid="16">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="9" tilewidth="256" tileheight="256" nextobjectid="26">
  <tileset firstgid="1" name="Tile (5)" tilewidth="256" tileheight="256" tilecount="1" columns="1">
   <image source="Tile (5).png" width="256" height="256"/>
  </tileset>
@@ -89,5 +89,32 @@
    </properties>
   </object>
   <object id="15" name="entryPoint" x="447" y="1984" width="24" height="52"/>
+  <object id="19" type="spawner" x="3164" y="1946" width="92" height="92">
+   <properties>
+    <property name="count" type="int" value="1"/>
+    <property name="delay" type="float" value="0"/>
+    <property name="entityType" value="EnemyMale"/>
+    <property name="entityScale" type="float" value="0.2"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="22" type="spawner" x="5078" y="922" width="92" height="92">
+   <properties>
+    <property name="count" type="int" value="1"/>
+    <property name="delay" type="float" value="0"/>
+    <property name="entityType" value="EnemyMale"/>
+    <property name="entityScale" type="float" value="0.2"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="25" type="spawner" x="7794" y="1646" width="92" height="92">
+   <properties>
+    <property name="count" type="int" value="1"/>
+    <property name="delay" type="float" value="0"/>
+    <property name="entityType" value="EnemyMale"/>
+    <property name="entityScale" type="float" value="0.2"/>
+   </properties>
+   <ellipse/>
+  </object>
  </objectgroup>
 </map>

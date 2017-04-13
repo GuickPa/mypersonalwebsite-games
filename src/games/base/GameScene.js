@@ -10,7 +10,7 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
     
     ctor:function () {
         window.cocos.cc.Scene.prototype.ctor.call(this);
-
+        this.setAnchorPoint(0, 0);
     },
     
     setTilemap: function(tilemap){
@@ -31,7 +31,7 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
     setEntityPosition: function(entity, positionName){
         if(entity != null) {
             if (this.tilemap != null) {
-                //GUI: check with obstacles
+                //GUI: check with objects
                 var objectsGroups = this.tilemap.getObjectGroups();
                 if (objectsGroups != null) {
                     var sf = this.tilemap.getScale();
@@ -50,12 +50,51 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
                         }
                     }
                 }
-                else {
-
-                }
             }
             //GUI: default position
             entity.setPosition(0, 0);
+        }
+    },
+
+    createSceneEntities: function(){
+        if (this.tilemap != null) {
+            //GUI: check with objects
+            var objectsGroups = this.tilemap.getObjectGroups();
+            if (objectsGroups != null) {
+                var sf = this.tilemap.getScale();
+                //GUI: scroll the list of groups
+                for (var i = 0; i < objectsGroups.length; i++) {
+                    var group = objectsGroups[i];
+                    //GUI: interactive objects layer
+                    if (group.groupName == 'objects') {
+                        var types = window.cocos.cc.GameEntitySceneObjectType;
+                        //GUI: get tile'size multiplied for tileMap scaling
+                        var size = this.tilemap.getTileSize();
+                        var sf = this.tilemap.getScale();
+                        size.width *= sf;
+                        size.height *= sf;
+                        for (var i = 0; i < group._objects.length; i++) {
+                            var obj = group._objects[i];
+                            switch (obj.type){
+                                case types.SPAWNER: {
+                                    var position = new window.cocos.cc.p(obj.x * sf, obj.y * sf)
+                                    this.createSpawner({"entityType": obj.entityType, "count": obj.count, "delay": obj.delay, "entityScale": obj.entityScale}, position);
+                                }
+                                    break;
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    
+    createSpawner: function(params, position){
+        if(params && params["entityType"] != null){
+            var spawner = window.cocos.cc.GameEntitySpawnerObject.create(params);
+            spawner.setPosition(position);
+            this.addChild(spawner);
         }
     }
 });

@@ -59,6 +59,11 @@ window.cocos.cc.EnemyMale = window.cocos.cc.Enemy.extend({
 window.cocos.cc.EnemyMale.create = function (fileName, rect, rotated) {
     return new window.cocos.cc.EnemyMale(fileName, rect, rotated);
 };
+
+window.cocos.cc.EnemyMale.createStandard = function (rect, rotated) {
+    return new window.cocos.cc.EnemyMale("assets/games/enemy/male/Idle (1).png", rect, rotated);
+};
+
 window.cocos.cc.EnemyMale.createWithTexture = window.cocos.cc.EnemyMale.create;
 window.cocos.cc.EnemyMale.createWithSpriteFrameName = window.cocos.cc.EnemyMale.create;
 window.cocos.cc.EnemyMale.createWithSpriteFrame = window.cocos.cc.EnemyMale.create;

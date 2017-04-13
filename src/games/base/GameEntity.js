@@ -1,10 +1,11 @@
 /**
  * Created by guglielmo on 29/03/17.
  */
-window.cocos.cc.kGameEntityPlayerTag = 0x10;
-window.cocos.cc.kGameEntityDeadPlayerTag = 0x100;
-window.cocos.cc.kGameEntityEnemyTag = 0x1000;
-window.cocos.cc.kGameEntityDeadEnemyTag = 0x10000;
+window.cocos.cc.kGameEntityPlayerTag = 0x1;
+window.cocos.cc.kGameEntityDeadPlayerTag = 0x10;
+window.cocos.cc.kGameEntityEnemyTag = 0x100;
+window.cocos.cc.kGameEntityDeadEnemyTag = 0x1000;
+window.cocos.cc.kGameEntitySceneObjectTag = 0x10000;
 
 //GUI: GameEntity is the base entity for all the games
 window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
@@ -312,10 +313,11 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     moveY: function(dx, dy, dt, p, obstacles, tileSize){
         //GUI: getting tileset lines which this.bb intersect with (opposite axis)
         var halfW = (this.collisionSize.width / 2 * Math.abs(this.getScaleX()));
-        var minX = Math.floor((p.x - halfW) / tileSize.width); //GUI: todo: consider using Math.round
-        var maxX = Math.floor((p.x + halfW) / tileSize.width); //GUI: todo: consider using Math.round
-        var rowY = Math.round(p.y / tileSize.height);
+        var maxCol = obstacles.getLayerSize().width -1;
         var max = obstacles.getLayerSize().height - 1;
+        var minX = Math.max(0,Math.floor((p.x - halfW) / tileSize.width)); //GUI: todo: consider using Math.round
+        var maxX = Math.min(maxCol - 1, Math.floor((p.x + halfW) / tileSize.width)); //GUI: todo: consider using Math.round
+        var rowY = Math.max(0, Math.min(max - 1, Math.round(p.y / tileSize.height)));
         //GUI: scan along these rows and towards the direction to find obstacles
         //then find the distance with the closest one: movement is the minimum between distance and this'step
         if (dy > 0) {
@@ -455,8 +457,8 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     },
     
     triggerObjectAction: function(obj){
-        //GUI: TODO: make a tail of "scripts" to be executed at the end of this update cycle
-        console.log(obj.action, obj.param0);
+        //GUI: override this function
+        //console.log(obj.action, obj.param0);
     },
 
     ////////////////////////////////////////////////////////////////////

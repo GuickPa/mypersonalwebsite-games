@@ -74,6 +74,9 @@
                             this.leftBound = 2 * tscale * 256;
                             this.rightBound = size.width - (4 * tscale * 256);
                             this.setNodeToFollow(sprite);
+
+                            //GUI: add scene objects
+                            this.createSceneEntities();
                         }
                     });
                     cc.director.runScene(new MyScene());
