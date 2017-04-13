@@ -2,8 +2,22 @@
  * Created by guglielmo on 29/03/17.
  */
 //GUI: Player - GameEntity
+
+//GUI: key mask
+window.cocos.cc.PlayerKeyMask = {
+    left: 0x1,
+    up: 0x10,
+    right: 0x100,
+    down: 0x1000,
+    jump: 0x10000,
+    fire: 0x100000
+}
+
 window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
     _className: "Player",
+    //GUI: custom
+    //GUI: pressed key mask
+    keyMask: 0,
 
     ctor: function (fileName, rect, rotated) {
         //GUI: call super
@@ -19,6 +33,7 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         self.setTag(window.cocos.cc.kGameEntityPlayerTag);
         self.weapon = window.cocos.cc.RobotLaserGun.create(self, window.cocos.cc.kGameEntityEnemyTag);
         self.lifePoints = 1;
+        self.keyMask = 0;
         return true;
     },
 
@@ -72,6 +87,33 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
     },
 
     update: function (dt) {
+        //GUI: read keymask
+        var mask = window.cocos.cc.PlayerKeyMask;
+        //GUI: for movement, right has priority to left
+        if(this.keyMask & mask.right){
+            this.velocity.x = this.speed;
+            this.setFlippedX(false);
+        }
+        else if (this.keyMask & mask.left){
+            this.velocity.x = -this.speed;
+            this.setFlippedX(true);
+        }
+        else{
+            this.velocity.x = 0;
+        }
+
+        if(this.keyMask & mask.up){
+            if (this.onGround) {
+                this.onGround = false;
+                this.velocity.y += this.jumpForce;
+                this.playAnimation("jump", false);
+            }
+        }
+
+        if(this.keyMask & mask.fire){
+            this.fire(this.keyMask & (mask.left | mask.right));
+        }
+
         this._super(dt);
         this.move(dt);
     },
@@ -86,7 +128,7 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         }
     },
 
-    fire: function(){
+    fire: function(moving){
         //GUI: check if it can fire (canFire flag is to avoid continuos propagation of bullets)
         if(this.onGround && this.weapon) {
             if(this.weapon.canFire()) {
@@ -94,7 +136,12 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
                 var direction = window.cocos.cc.p(this.isFlippedX() ? -1 : 1, 0);
                 this.weapon.fire(this.getPosition(), direction, this.getScale());
                 //GUI: play fire animation
-                this.playAnimation("shoot", false, this.onEndFireAction, this);
+                if(moving){
+                    this.playAnimation("runShoot", false, this.onEndFireAction, this);
+                }
+                else{
+                    this.playAnimation("shoot", false, this.onEndFireAction, this);
+                }
             }
         }
     },
@@ -155,32 +202,29 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
             switch (key) {
                 case 32:
                     //GUI: space
-                    this.fire();
+                    this.keyMask |= window.cocos.cc.PlayerKeyMask.fire;
                     break;
                 case 37:
                     //GUI: left
-                    this.velocity.x = -this.speed;
-                    this.setFlippedX(true);
+                    this.keyMask |= window.cocos.cc.PlayerKeyMask.left;
                     if (this.onGround) {
                         this.playAnimation("run", true);
-
                     }
                     break;
                 case 38:
                     //GUI: Up
-                    if (this.onGround) {
-                        this.onGround = false;
-                        this.velocity.y += this.jumpForce;
-                        this.playAnimation("jump", false);
-                    }
+                    this.keyMask |= window.cocos.cc.PlayerKeyMask.up;
                     break;
                 case 39:
                     //GUI: right
-                    this.velocity.x = this.speed;
-                    this.setFlippedX(false);
+                    this.keyMask |= window.cocos.cc.PlayerKeyMask.right;
                     if (this.onGround) {
                         this.playAnimation("run", true);
                     }
+                    break;
+                case 40:
+                    //GUI: down
+                    this.keyMask |= window.cocos.cc.PlayerKeyMask.down;
                     break;
             }
         }
@@ -189,17 +233,32 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
     onKeyReleased: function (key, event) {
         if(this.isAlive()) {
             switch (key) {
+                case 32:
+                    //GUI: space
+                    //this.fire();
+                    this.keyMask &= ~window.cocos.cc.PlayerKeyMask.fire;
+                    break;
                 case 37:
-                    this.velocity.x = 0;
-                    if (this.onGround) {
+                    this.keyMask &= ~window.cocos.cc.PlayerKeyMask.left;
+                    //GUI: if no keys are pressed, and there is no animation, play default (idle) animation
+                    if(this.keyMask == 0 && this.onGround) {
                         this.playAnimation("idle", true);
                     }
                     break;
+                case 38:
+                    //GUI: Up
+                    this.keyMask &= ~window.cocos.cc.PlayerKeyMask.up;
+                    break;
                 case 39:
-                    this.velocity.x = 0;
-                    if (this.onGround) {
+                    this.keyMask &= ~window.cocos.cc.PlayerKeyMask.right;
+                    //GUI: if no keys are pressed, and there is no animation, play default (idle) animation
+                    if(this.keyMask == 0 && this.onGround) {
                         this.playAnimation("idle", true);
                     }
+                    break;
+                case 40:
+                    //GUI: down
+                    this.keyMask &= ~window.cocos.cc.PlayerKeyMask.down;
                     break;
             }
         }

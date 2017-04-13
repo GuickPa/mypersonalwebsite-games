@@ -71,7 +71,6 @@ window.cocos.cc.Enemy = window.cocos.cc.GameEntity.extend({
         if(this.stateMachine){
             this.stateMachine.changeState(window.cocos.cc.kIAStateIdle);
         }
-        console.log("getBackInLife", this.lifePoints);
     },
 
 });
