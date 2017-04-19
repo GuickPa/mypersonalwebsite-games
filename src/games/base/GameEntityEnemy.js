@@ -4,8 +4,6 @@
 //GUI: Enemy - GameEntityEnemy
 window.cocos.cc.Enemy = window.cocos.cc.GameEntity.extend({
     _className: "Enemy",
-    //GUI: custom
-    stateMachine: null,
 
     ctor: function (fileName, rect, rotated) {
         //GUI: call super
@@ -16,7 +14,6 @@ window.cocos.cc.Enemy = window.cocos.cc.GameEntity.extend({
     init: function(){
         window.cocos.cc.GameEntity.prototype.init.call(this);
         this.setTag(window.cocos.cc.kGameEntityEnemyTag);
-        this.stateMachine = window.cocos.cc.IAStateMachine.create(this);
         return true;
     },
 
@@ -31,9 +28,7 @@ window.cocos.cc.Enemy = window.cocos.cc.GameEntity.extend({
     },
 
     update: function (dt) {
-        if(this.stateMachine != null){
-            this.stateMachine.update(dt);
-        }
+        this._super(dt);
         this.move(dt);
     },
 

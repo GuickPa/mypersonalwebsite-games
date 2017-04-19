@@ -10,7 +10,7 @@ window.cocos.cc.PlayerKeyMask = {
     right: 0x100,
     down: 0x1000,
     jump: 0x10000,
-    fire: 0x100000
+    fire: 0x100000,
 }
 
 window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
@@ -18,6 +18,8 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
     //GUI: custom
     //GUI: pressed key mask
     keyMask: 0,
+    isSliding: false,
+    slideDuration: 1.5,
 
     ctor: function (fileName, rect, rotated) {
         //GUI: call super
@@ -34,13 +36,24 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         self.weapon = window.cocos.cc.RobotLaserGun.create(self, window.cocos.cc.kGameEntityEnemyTag);
         self.lifePoints = 1;
         self.keyMask = 0;
+        self.isSliding = false;
+        self.stateMachine = window.cocos.cc.PlayerStateMachine.create(this);
         return true;
+    },
+    
+    getSlideDuration: function(){
+        return this.slideDuration;
     },
 
     onEnter: function(){
         this._super();
         this.collisionSize = new window.cocos.cc.Size(276, 488);
-        this.playAnimation("idle", true);
+        if(this.stateMachine != null){
+            this.stateMachine.changeState(window.cocos.cc.kIAStateIdle);
+        }
+        else{
+            this.playAnimation("idle", true);
+        }
 
         //GUI: ask to current scene to set its start position (need to be done here, after player was loaded)
         var scene = window.cocos.cc.director.getRunningScene();
@@ -59,6 +72,7 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         var shoot = ["Shoot (1)", "Shoot (2)", "Shoot (3)", "Shoot (4)"];
         var runShoot = ["RunShoot (1)", "RunShoot (2)", "RunShoot (3)", "RunShoot (4)", "RunShoot (5)", "RunShoot (6)", "RunShoot (7)", "RunShoot (8)", "RunShoot (9)"];
         var dead = ["Dead (1)", "Dead (2)", "Dead (3)", "Dead (4)", "Dead (5)", "Dead (6)", "Dead (7)", "Dead (8)", "Dead (9)", "Dead (10)"];
+        var slide = ["Slide (1)", "Slide (2)", "Slide (3)", "Slide (4)", "Slide (5)", "Slide (6)", "Slide (7)", "Slide (8)", "Slide (9)", "Slide (10)"];
 
         this.buildAnimation("idle", "assets/games/player", idle, 0.12);
         this.buildAnimation("run", "assets/games/player", run);
@@ -67,6 +81,7 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         this.buildAnimation("runShoot", "assets/games/player", runShoot);
         this.buildAnimation("dead", "assets/games/player", dead);
         this.buildAnimation("reborn", "assets/games/player", dead.reverse());
+        this.buildAnimation("slide", "assets/games/player", slide);
     },
 
     buildController: function() {
@@ -87,33 +102,9 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
     },
 
     update: function (dt) {
-        //GUI: read keymask
-        var mask = window.cocos.cc.PlayerKeyMask;
-        //GUI: for movement, right has priority to left
-        if(this.keyMask & mask.right){
-            this.velocity.x = this.speed;
-            this.setFlippedX(false);
+        if(this.stateMachine != null){
+            this.stateMachine.inputUpdate(this.keyMask);
         }
-        else if (this.keyMask & mask.left){
-            this.velocity.x = -this.speed;
-            this.setFlippedX(true);
-        }
-        else{
-            this.velocity.x = 0;
-        }
-
-        if(this.keyMask & mask.up){
-            if (this.onGround) {
-                this.onGround = false;
-                this.velocity.y += this.jumpForce;
-                this.playAnimation("jump", false);
-            }
-        }
-
-        if(this.keyMask & mask.fire){
-            this.fire(this.keyMask & (mask.left | mask.right));
-        }
-
         this._super(dt);
         this.move(dt);
     },
@@ -125,6 +116,31 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         }
         else{
             this.playAnimation("idle", true);
+        }
+    },
+
+    idle: function(){
+        //GUI: if no keys are pressed, and there is no animation, play default (idle) animation
+        if(this.keyMask == 0 && this.onGround) {
+            this.playAnimation("idle", true);
+        }
+    },
+
+    runRight: function(){
+        this.velocity.x = this.speed;
+        this.setFlippedX(false);
+    },
+
+    runLeft: function(){
+        this.velocity.x = -this.speed;
+        this.setFlippedX(true);
+    },
+
+    jump: function(){
+        if (this.onGround) {
+            this.onGround = false;
+            this.velocity.y += this.jumpForce;
+            this.playAnimation("jump", false);
         }
     },
 
@@ -146,11 +162,38 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         }
     },
 
+    slide: function(moving){
+        if(this.onGround && !this.isSliding){
+            this.isSliding = true;
+            this.playAnimation("slide", false);
+            if(this.isFlippedX()){
+                this.velocity.x = -this.speed * 2;
+            }
+            else{
+                this.velocity.x = this.speed * 2;
+            }
+        }
+    },
+
     onEndFireAction: function(){
-        if(this.velocity.x == 0)
-            this.playAnimation("idle", true);
-        else
+        //GUI: read keymask
+        var mask = window.cocos.cc.PlayerKeyMask;
+        if(this.keyMask & (mask.right|mask.left))
             this.playAnimation("run", true);
+        else
+            this.playAnimation("idle", true);
+    },
+
+    onEndSlideAction: function(){
+        //GUI: read keymask
+        var mask = window.cocos.cc.PlayerKeyMask;
+        if(this.keyMask & (mask.right|mask.left)) {
+            this.playAnimation("run", true);
+        }
+        else {
+            this.playAnimation("idle", true);
+        }
+        this.isSliding = false;
     },
 
     ////////////////////////////////////////////////////////////////////
@@ -207,9 +250,6 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
                 case 37:
                     //GUI: left
                     this.keyMask |= window.cocos.cc.PlayerKeyMask.left;
-                    if (this.onGround) {
-                        this.playAnimation("run", true);
-                    }
                     break;
                 case 38:
                     //GUI: Up
@@ -218,14 +258,15 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
                 case 39:
                     //GUI: right
                     this.keyMask |= window.cocos.cc.PlayerKeyMask.right;
-                    if (this.onGround) {
-                        this.playAnimation("run", true);
-                    }
                     break;
                 case 40:
                     //GUI: down
                     this.keyMask |= window.cocos.cc.PlayerKeyMask.down;
                     break;
+            }
+            
+            if(this.stateMachine != null){
+                this.stateMachine.onKeyPressed(event, key, this.keyMask);
             }
         }
     },
@@ -240,10 +281,6 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
                     break;
                 case 37:
                     this.keyMask &= ~window.cocos.cc.PlayerKeyMask.left;
-                    //GUI: if no keys are pressed, and there is no animation, play default (idle) animation
-                    if(this.keyMask == 0 && this.onGround) {
-                        this.playAnimation("idle", true);
-                    }
                     break;
                 case 38:
                     //GUI: Up
@@ -252,14 +289,15 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
                 case 39:
                     this.keyMask &= ~window.cocos.cc.PlayerKeyMask.right;
                     //GUI: if no keys are pressed, and there is no animation, play default (idle) animation
-                    if(this.keyMask == 0 && this.onGround) {
-                        this.playAnimation("idle", true);
-                    }
                     break;
                 case 40:
                     //GUI: down
                     this.keyMask &= ~window.cocos.cc.PlayerKeyMask.down;
                     break;
+            }
+
+            if(this.stateMachine != null){
+                this.stateMachine.onKeyReleased(event, key, this.keyMask);
             }
         }
     },

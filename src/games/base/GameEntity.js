@@ -30,6 +30,8 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     weapon: null,
     //GUI: life points
     lifePoints: 1,
+    //GUI: custom
+    stateMachine: null,
 
     ctor: function (fileName, rect, rotated) {
         var self = this;
@@ -123,6 +125,9 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     
     update: function(dt){
         this._super(dt);
+        if(this.stateMachine != null){
+            this.stateMachine.update(dt);
+        }
         if(this.weapon){
             this.weapon.update(dt);
         }

@@ -16,6 +16,7 @@ window.cocos.cc.EnemyMale = window.cocos.cc.Enemy.extend({
     init: function(){
         var self = this;
         window.cocos.cc.Enemy.prototype.init.call(self);
+        self.stateMachine = window.cocos.cc.EnemyMaleStateMachine.create(self);
         self.weapon = window.cocos.cc.ZombieClaw.create(self, window.cocos.cc.kGameEntityPlayerTag);
         self.lifePoints = 6;
         return true;
