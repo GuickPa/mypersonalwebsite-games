@@ -384,7 +384,14 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                     this.setPositionY(y +  halfH);
                                 }
                                 else{
-                                    this.setPositionY(p.y + dy);
+                                    //GUI: last fix: if this is already on the ground, position is still defined by slope
+                                    if(this.onGround){
+                                        this.setPositionY(y +  halfH);
+                                    }
+                                    else {
+                                        //GUI: else falls (or goes up)
+                                        this.setPositionY(p.y + dy);
+                                    }
                                 }
 
                                 return;
