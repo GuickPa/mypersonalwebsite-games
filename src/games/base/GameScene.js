@@ -9,7 +9,7 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
     totalSize: null,
     
     ctor:function () {
-        window.cocos.cc.Scene.prototype.ctor.call(this);
+        this._super();
         this.setAnchorPoint(0, 0);
     },
     

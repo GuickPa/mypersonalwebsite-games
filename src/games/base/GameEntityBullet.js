@@ -16,7 +16,7 @@ window.cocos.cc.Bullet = window.cocos.cc.GameEntity.extend({
 
     ctor: function (fileName, rect, rotated) {
         //GUI: call super
-        window.cocos.cc.GameEntity.prototype.ctor.call(this, fileName, rect, rotated);
+        this._super(fileName, rect, rotated);
     },
 
     init: function(){
@@ -155,7 +155,7 @@ window.cocos.cc.RobotBullet = window.cocos.cc.Bullet.extend({
 
     ctor: function () {
         //GUI: call super
-        window.cocos.cc.Bullet.prototype.ctor.call(this, "assets/games/player/Objects/Bullet_000.png");
+        this._super("assets/games/player/Objects/Bullet_000.png");
         this.speed = 300;
     },
 

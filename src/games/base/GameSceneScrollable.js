@@ -9,7 +9,7 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
     velocity: null,
 
     ctor:function () {
-        window.cocos.cc.GameScene.prototype.ctor.call(this);
+        this._super();
         this.init();
     },
     

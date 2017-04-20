@@ -3,7 +3,7 @@
  */
 //GUI: base class for scene objects like entitiesSpawner, interactive objects, etc
 window.cocos.cc.GameEntitySceneObjectType = {
-    SPAWNER: "spawner"
+    SPAWNER: "spawner",
 };
 
 
@@ -19,8 +19,7 @@ window.cocos.cc.GameEntitySceneObject = window.cocos.cc.Node.extend({
     },
 
     init: function(){
-        window.cocos.cc.GameEntity.prototype.init.call(this);
-
+        this._super();
         return true;
     }
 });
@@ -88,7 +87,8 @@ window.cocos.cc.GameEntitySpawnerObject = window.cocos.cc.GameEntitySceneObject.
                         entity.setPosition(this.getPosition().x, this.getPosition().y);
                         entity.setScale(this.entityScale);
                         scene.addChild(entity, 1);
-                        entity.setPosition(entity.getPosition().x, entity.getPosition().y + entity.collisionSize.height/2 * entity.getScaleY());
+                        var rect = entity.collisionSize || entity._contentSize;
+                        entity.setPosition(entity.getPosition().x, entity.getPosition().y + rect.height/2 * entity.getScaleY());
                         //window.cocos.cc.director.getScheduler().scheduleCallbackForTarget(entity, this.onEntityLoaded, 0.1, false, 0, false);
                         this.currentCount++;
                     }

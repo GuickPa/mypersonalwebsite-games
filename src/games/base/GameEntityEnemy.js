@@ -7,12 +7,12 @@ window.cocos.cc.Enemy = window.cocos.cc.GameEntity.extend({
 
     ctor: function (fileName, rect, rotated) {
         //GUI: call super
-        window.cocos.cc.GameEntity.prototype.ctor.call(this, fileName, rect, rotated);
+        this._super(fileName, rect, rotated);
         this.buildAnimations();
     },
 
-    init: function(){
-        window.cocos.cc.GameEntity.prototype.init.call(this);
+    init: function(fileName, rect, rotated){
+        this._super(fileName, rect, rotated);
         this.setTag(window.cocos.cc.kGameEntityEnemyTag);
         return true;
     },

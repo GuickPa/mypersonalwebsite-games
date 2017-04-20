@@ -23,14 +23,14 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
 
     ctor: function (fileName, rect, rotated) {
         //GUI: call super
-        window.cocos.cc.GameEntity.prototype.ctor.call(this, fileName, rect, rotated);
+        this._super(fileName, rect, rotated);
         this.buildAnimations();
         this.buildController();
     },
 
-    init: function(){
+    init: function(fileName, rect, rotated){
         var self = this;
-        window.cocos.cc.GameEntity.prototype.init.call(self);
+        self._super(fileName, rect, rotated);
         self.speed = 100;
         self.setTag(window.cocos.cc.kGameEntityPlayerTag);
         self.weapon = window.cocos.cc.RobotLaserGun.create(self, window.cocos.cc.kGameEntityEnemyTag);

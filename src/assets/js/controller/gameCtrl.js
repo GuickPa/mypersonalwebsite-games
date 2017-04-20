@@ -37,7 +37,7 @@
             $scope.loadScene = function(){
                 var cc = window.cocos.cc;
                 //load resources
-                cc.LoaderScene.preload(["assets/games/tiles/scifi/level00.tmx"], function () {
+                cc.LoaderScene.preload(["assets/games/tiles/scifi/Saw.png", "assets/games/tiles/scifi/level00.tmx"], function () {
                     var MyScene = cc.GameSceneScrollable.extend({
                         onEnter:function () {
                             this._super();

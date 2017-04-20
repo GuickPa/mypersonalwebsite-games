@@ -1,7 +1,7 @@
 /**
  * Created by guglielmo on 09/04/17.
  */
-//GUI: Enemy - subclass of enemy
+//GUI: EnemyMale - subclass of enemy
 window.cocos.cc.EnemyMale = window.cocos.cc.Enemy.extend({
     _className: "EnemyMale",
     //GUI: custom
@@ -9,13 +9,13 @@ window.cocos.cc.EnemyMale = window.cocos.cc.Enemy.extend({
 
     ctor: function (fileName, rect, rotated) {
         //GUI: call super
-        window.cocos.cc.Enemy.prototype.ctor.call(this, fileName, rect, rotated);
+        this._super(fileName, rect, rotated);
         this.buildAnimations();
     },
 
-    init: function(){
+    init: function(fileName, rect, rotated){
         var self = this;
-        window.cocos.cc.Enemy.prototype.init.call(self);
+        self._super(fileName, rect, rotated);
         self.stateMachine = window.cocos.cc.EnemyMaleStateMachine.create(self);
         self.weapon = window.cocos.cc.ZombieClaw.create(self, window.cocos.cc.kGameEntityPlayerTag);
         self.lifePoints = 6;

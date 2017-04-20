@@ -36,15 +36,20 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     ctor: function (fileName, rect, rotated) {
         var self = this;
         //GUI: call super
-        self._super(fileName, rect, rotated);
+        this._super(fileName, rect, rotated);
         //GUI: need to set value to all the members because instances will ends up to share prototype object until a new value is setted.
         // after a new value is setted, member is copied into object instance -> http://discuss.cocos2d-x.org/t/cc-class-multiple-instance-problem-cocos2d-js-3-2/19853/5
-        self.init();
+
     },
-    
-    init: function(){
+
+    //GUI: overload this for init
+    _softInit: function (fileName, rect, rotated) {
+        this._super(fileName, rect, rotated);
+        this.init(fileName, rect, rotated);
+    },
+
+    init: function(fileName, rect, rotated){
         var self = this;
-        window.cocos.cc.Sprite.prototype.init.call(self);
         //GUI: need to set value to all the members because instances will ends up to share prototype object until a new value is setted.
         // after a new value is setted, member is copied into object instance -> http://discuss.cocos2d-x.org/t/cc-class-multiple-instance-problem-cocos2d-js-3-2/19853/5
         self.animations = {};
@@ -95,7 +100,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         }
         //GUI: play animation
         var cc = window.cocos.cc;
-        if(this.animations !== 'undefined' && this.animations[name] !== 'undefined') {
+        if(this.animations != null && this.animations[name] !== 'undefined') {
             //GUI: get animation from list and create an action
             var action = cc.animate(this.animations[name]);
             if(loop) {
