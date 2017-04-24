@@ -33,9 +33,11 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
     },
 
     getChildrenByTagMask: function(tagMask, recursive){
+        var list = [];
         if(recursive == null || !recursive) {
-            var list = [];
-            for (var child in this.getChildren()) {
+            var children = this.getChildre();
+            for (var index = 0; index < children.length; index++){
+                var child = children[index];
                 if (child.getTag() != -1 && (child.getTag() & tagMask)) {
                     list.push(child);
                 }
@@ -48,7 +50,25 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
     },
 
     getChildrenByTagMaskRecursive: function(tagMask, child){
-      //TODO: make recursive search in scene, with first round child = null
+        if (child == null){
+          child = this;
+        }
+        //GUI: list wher add node and to be returned as result
+        var list = [];
+        var children = child.getChildren();
+        for (var index = 0; index < children.length; index++){
+            var node = children[index];
+            if(node.getTag() != -1 && (node.getTag() & tagMask)){
+                list.push(node);
+            }
+            //GUI: search in node
+            var nodeList = this.getChildrenByTagMaskRecursive(tagMask, node);
+            if(nodeList && nodeList.length > 0) {
+                Array.prototype.push.apply(list,nodeList);
+            }
+        }
+
+        return list;
     },
 
     createPlayer: function(){

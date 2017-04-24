@@ -1,11 +1,11 @@
 /**
  * Created by guglielmo on 29/03/17.
  */
-window.cocos.cc.kGameEntityPlayerTag = 0x1;
-window.cocos.cc.kGameEntityDeadPlayerTag = 0x10;
-window.cocos.cc.kGameEntityEnemyTag = 0x100;
-window.cocos.cc.kGameEntityDeadEnemyTag = 0x1000;
-window.cocos.cc.kGameEntitySceneObjectTag = 0x10000;
+window.cocos.cc.kGameEntityPlayerTag = 0x10;
+window.cocos.cc.kGameEntityDeadPlayerTag = 0x100;
+window.cocos.cc.kGameEntityEnemyTag = 0x1000;
+window.cocos.cc.kGameEntityDeadEnemyTag = 0x10000;
+window.cocos.cc.kGameEntitySceneObjectTag = 0x100000;
 
 //GUI: GameEntity is the base entity for all the games
 window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({

@@ -16,6 +16,8 @@ window.cocos.cc.IAState = window.cocos.cc.Class.extend({
     //GUI: custom
     //GUI: state name
     stateName: null,
+    //GUI: enter params
+    enterParams: null,
     //GUI: reference to entity 
     entity: null,
     
@@ -33,6 +35,16 @@ window.cocos.cc.IAState = window.cocos.cc.Class.extend({
 
     setEntity: function(entity){
         this.entity = entity;
+    },
+    
+    setEnterParams: function(params){
+        //GUI: check for integrity
+        if(typeof params !== 'undefined'){
+            this.enterParams = params;
+        }
+        else{
+            this.enterParams = null;
+        }
     },
     
     onEnter: function(){
@@ -58,15 +70,24 @@ window.cocos.cc.IAState = window.cocos.cc.Class.extend({
         if(this.entity != null) {
             var scene = window.cocos.cc.director.getRunningScene();
             if (scene) {
-                var children = scene.getChildren();
-                for (var index = 0; index < children.length; index++) {
-                    var child = children[index];
-                    if (child.getTag() & tagMask) {
+                var targetList = scene.getChildrenByTagMask(tagMask, true);
+                if(targetList && targetList.length > 0){
+                    var target = {
+                        node: null,
+                        dist: 1000000,
+                    };
+                    for (var index = 0; index < targetList.length; index++){
+                        var child = targetList[index];
                         //GUI: calc the distance vector between entity owner of thi state and founded enemy node
                         var dv = window.cocos.cc.p(child.getPosition().x - this.entity.getPosition().x, child.getPosition().y - this.entity.getPosition().y);
                         var dist = Math.sqrt((dv.x * dv.x) + (dv.y * dv.y));
-                        return dist;
+                        if(target.dist >= dist){
+                            target.node = child;
+                            target.dist = dist;
+                        }
                     }
+
+                    return target.node != null ? target : false;
                 }
             }
         }
@@ -75,21 +96,12 @@ window.cocos.cc.IAState = window.cocos.cc.Class.extend({
     },
 
     //GUI: return a value that can be -1 (left) or 1 (right). false if no player were found
-    enemyDirection: function(tagMask){
+    enemyDirection: function(node){
         if(this.entity != null) {
-            var scene = window.cocos.cc.director.getRunningScene();
-            if (scene) {
-                var children = scene.getChildren();
-                for (var index = 0; index < children.length; index++) {
-                    var child = children[index];
-                    if (child.getTag() & tagMask) {
-                        //GUI: calc the distance vector between entity owner of thi state and founded enemy node
-                        var dx = child.getPosition().x - this.entity.getPosition().x;
-                        var dist = dx/Math.abs(dx);
-                        return dist;
-                    }
-                }
-            }
+            //GUI: calc the distance vector between entity owner of thi state and founded enemy node
+            var dx = node.getPosition().x - this.entity.getPosition().x;
+            var dist = dx/Math.abs(dx);
+            return dist;
         }
         //GUI: unable to find distance
         return false;
@@ -129,10 +141,10 @@ window.cocos.cc.IAStateIdle = window.cocos.cc.IAState.extend({
 
     endAnimationCallback: function(){
         if(this.entity.weapon != null) {
-            var dist = this.checkDistanceWithEnemy(window.cocos.cc.kGameEntityPlayerTag);
-            if (dist != false) {
-                if (dist <= this.entity.weapon.range) {
-                    this.entity.stateMachine.changeState(window.cocos.cc.kIAStateAttack);
+            var target = this.checkDistanceWithEnemy(window.cocos.cc.kGameEntityPlayerTag);
+            if (target != false) {
+                if (target.dist <= this.entity.weapon.range) {
+                    this.entity.stateMachine.changeState(window.cocos.cc.kIAStateAttack, {target:target.node});
                 }
                 else{
                     this.entity.stateMachine.changeState(window.cocos.cc.kIAStateWalk);
@@ -165,10 +177,10 @@ window.cocos.cc.IAStateWalk = window.cocos.cc.IAState.extend({
     update: function(dt){
         this._super(dt);
         if(this.entity.weapon != null) {
-            var dist = this.checkDistanceWithEnemy(window.cocos.cc.kGameEntityPlayerTag);
-            if (dist != false) {
-                if (dist <= this.entity.weapon.range) {
-                    this.entity.stateMachine.changeState(window.cocos.cc.kIAStateAttack);
+            var target = this.checkDistanceWithEnemy(window.cocos.cc.kGameEntityPlayerTag);
+            if (target != false) {
+                if (target.dist <= this.entity.weapon.range) {
+                    this.entity.stateMachine.changeState(window.cocos.cc.kIAStateAttack, {target:target.node});
                 }
             }
         }
@@ -214,6 +226,7 @@ window.cocos.cc.IAStateAttack = window.cocos.cc.IAState.extend({
     //GUI: custom
     //GUI: state name
     stateName: window.cocos.cc.kIAStateAttack,
+    target: null,
 
     ctor: function(){
         window.cocos.cc.IAState.prototype.ctor.call();
@@ -222,21 +235,20 @@ window.cocos.cc.IAStateAttack = window.cocos.cc.IAState.extend({
 
     init: function(){
         this._super();
-        this.endAttackFlag = false;
     },
 
     update: function(dt){
         this._super(dt);
-
     },
 
     onEnter: function(){
         this._super();
         if(this.entity != null) {
             this.entity.velocity = window.cocos.cc.p(0, 0);
-            if(this.entity.weapon != null) {
+            this.target = this.enterParams.target;
+            if(this.entity.weapon != null && this.target) {
                 //GUI: get enemy direction and flips the sprite if needed
-                var dir = this.enemyDirection(window.cocos.cc.kGameEntityPlayerTag);
+                var dir = this.enemyDirection(this.target);
                 if (dir != false) {
                     this.entity.setFlippedX(dir < 0);
                     if (this.entity.weapon.canFire()) {

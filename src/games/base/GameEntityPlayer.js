@@ -35,7 +35,7 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         self.jumpForce = 256 * 9;
         self.setTag(window.cocos.cc.kGameEntityPlayerTag);
         self.weapon = window.cocos.cc.RobotLaserGun.create(self, window.cocos.cc.kGameEntityEnemyTag);
-        self.lifePoints = 1;
+        self.lifePoints = 10;
         self.keyMask = 0;
         self.isSliding = false;
         self.stateMachine = window.cocos.cc.PlayerStateMachine.create(this);

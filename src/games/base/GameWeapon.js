@@ -51,11 +51,11 @@ window.cocos.cc.GameWeapon = window.cocos.cc.Class.extend({
         if(this.entity != null) {
             var scene = window.cocos.cc.director.getRunningScene();
             if (scene) {
-                var children = scene.getChildren();
                 var list = [];
-                for (var index = 0; index < children.length; index++) {
-                    var child = children[index];
-                    if (child.getTag() != -1 && (child.getTag() & this.enemyTag)){
+                var targetList = scene.getChildrenByTagMask(this.enemyTag, true);
+                if(targetList && targetList.length > 0){
+                    for (var index = 0; index < targetList.length; index++){
+                        var child = targetList[index];
                         //GUI: omni direction weapon: look for enemies in range from center of the owner entity
                         var dist = this.calcDistanceWithEntity(child);
                         if(dist <= this.range){
@@ -76,11 +76,11 @@ window.cocos.cc.GameWeapon = window.cocos.cc.Class.extend({
         if(this.entity != null) {
             var scene = window.cocos.cc.director.getRunningScene();
             if (scene) {
-                var children = scene.getChildren();
                 var list = [];
-                for (var index = 0; index < children.length; index++) {
-                    var child = children[index];
-                    if (child.getTag() != -1 && (child.getTag() & this.enemyTag)) {
+                var targetList = scene.getChildrenByTagMask(this.enemyTag, true);
+                if(targetList && targetList.length > 0){
+                    for (var index = 0; index < targetList.length; index++){
+                        var child = targetList[index];
                         //GUI: omni direction weapon: look for enemies in range from center of the owner entity
                         var dist = this.calcDistanceWithEntityByCollision(child);
                         if(dist <= this.range){
@@ -100,11 +100,11 @@ window.cocos.cc.GameWeapon = window.cocos.cc.Class.extend({
         if(this.entity != null) {
             var scene = window.cocos.cc.director.getRunningScene();
             if (scene) {
-                var children = scene.getChildren();
                 var list = [];
-                for (var index = 0; index < children.length; index++) {
-                    var child = children[index];
-                    if (child.getTag() != -1 && (child.getTag() & this.enemyTag)) {
+                var targetList = scene.getChildrenByTagMask(this.enemyTag, true);
+                if(targetList && targetList.length > 0){
+                    for (var index = 0; index < targetList.length; index++){
+                        var child = targetList[index];
                         //GUI: one direction weapon: look only for enemies in front of this.entity
                         if(this.entity.isFlippedX()){
                             //GUI: if flipped, this.entity is looking to the left. Looking for entities with position.x less or equal to this.entity.getPositionX

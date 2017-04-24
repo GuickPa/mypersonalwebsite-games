@@ -48,12 +48,13 @@ window.cocos.cc.IAStateMachine = window.cocos.cc.Class.extend({
         }
     },
 
-    changeState: function(stateName){
+    changeState: function(stateName, params){
         //GUI: change state at the end of this update cycle
         if(stateName != null) {
             var newState = this.states[stateName];
             if(newState){
                 this.nextState = newState;
+                newState.setEnterParams(params);
                 this.changeStateFlag = true;
             }
         }
