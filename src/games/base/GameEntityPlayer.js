@@ -116,7 +116,7 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
             if(this.weapon.canFire()) {
                 //GUI: make the weapon to fire
                 var direction = window.cocos.cc.p(this.isFlippedX() ? -1 : 1, 0);
-                this.weapon.fire(this.getPosition(), direction, this.getScale());
+                this.weapon.fire(this.getPosition(), direction, this.getScale(), this.getParent());
                 //GUI: play fire animation
                 if(moving){
                     this.playAnimation("runShoot", false, this.onEndFireAction, this);

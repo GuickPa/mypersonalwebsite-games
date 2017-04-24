@@ -26,7 +26,7 @@ window.cocos.cc.Bullet = window.cocos.cc.GameEntity.extend({
         self.hitEntity = false;
         self.shootDirection = window.cocos.cc.p(0,0);
         self.shouldBeRemoved = false;
-        self.range = 500;
+        self.range = 256 * 4;
         self.currentDistance = 0;
         return true;
     },
@@ -103,10 +103,10 @@ window.cocos.cc.Bullet = window.cocos.cc.GameEntity.extend({
         var scene = window.cocos.cc.director.getRunningScene();
         if (scene) {
             var children = scene.getChildren();
-            for (var index = 0; index < children.length; index++) {
-                var child = children[index];
-                var tag = child.getTag();
-                if((tagMask & tag) != 0 && tag != window.cocos.cc.NODE_TAG_INVALID){
+            var targetList = scene.getChildrenByTagMask(tagMask, true);
+            if(targetList && targetList.length > 0){
+                for (var index = 0; index < targetList.length; index++){
+                    var child = targetList[index];
                     var eWidth = child.collisionSize != null ? child.collisionSize.width : child._getWidth();
                     var eHeight = child.collisionSize != null ? child.collisionSize.height : child._getHeight();
                     //GUI: check if collision rect intersects
@@ -156,7 +156,7 @@ window.cocos.cc.RobotBullet = window.cocos.cc.Bullet.extend({
     ctor: function () {
         //GUI: call super
         this._super("assets/games/player/Objects/Bullet_000.png");
-        this.speed = 300;
+        this.speed = 256 * 3.5;
     },
 
     init: function(){
