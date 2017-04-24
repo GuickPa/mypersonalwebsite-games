@@ -16,8 +16,8 @@ window.cocos.cc.PlayerStateMachine = window.cocos.cc.IAStateMachine.extend({
         this.states[window.cocos.cc.kIAStateRun] = window.cocos.cc.PlayerStateRun.create();
         this.states[window.cocos.cc.kIAStateJump] = window.cocos.cc.PlayerStateJump.create();
         this.states[window.cocos.cc.kIAStateSlide] = window.cocos.cc.PlayerStateSlide.create();
-        // this.states[window.cocos.cc.kIAStateDeath] = window.cocos.cc.IAStateDeath.create();
-        // this.states[window.cocos.cc.kIAStateDead] = window.cocos.cc.IAStateDead.create();
+        this.states[window.cocos.cc.kIAStateDeath] = window.cocos.cc.PlayerStateDeath.create();
+        this.states[window.cocos.cc.kIAStateDead] = window.cocos.cc.PlayerStateDead.create();
         // this.states[window.cocos.cc.kIAStateReborn] = window.cocos.cc.IAStateReborn.create();
         //GUI: set entity to states
         for(var key in this.states){

@@ -68,12 +68,12 @@ window.cocos.cc.GameScript = window.cocos.cc.Class.extend({
             //load resources
             cc.LoaderScene.preload([tileMapName], function () {
                 var MyScene = cc.GameSceneScrollable.extend({
-                    onEnter: function () {
+                    onEnter:function () {
                         this._super();
                         var size = cc.director.getWinSize();
                         var tileset = cc.TMXTiledMap.create(tileMapName);
                         tileset.setTag(0);
-                        var tscale = size.height / (9 * 256);
+                        var tscale = size.height/(9*256);
                         tileset.setScale(tscale);
                         this.setTilemap(tileset);
                         this.addChild(tileset, 0);
@@ -82,16 +82,14 @@ window.cocos.cc.GameScript = window.cocos.cc.Class.extend({
                         cc.director.getScheduler().scheduleCallbackForTarget(this, this.onLoadTiledMap, 0.5, false, 0, false);
                     },
 
-                    onLoadTiledMap: function () {
+                    onLoadTiledMap: function(){
                         var size = cc.director.getWinSize();
-                        var tscale = size.height / (9 * 256);
-                        var sprite = cc.Player.create("assets/games/player/Idle (1).png");
-                        sprite.setScale(0.2);
-                        //sprite.setPosition(2048 * size.height/(9*256), 1536 * size.height/(9*256));
-                        this.addChild(sprite, 1);
+                        var tscale = size.height/(9*256);
+                        var sprite = this.createPlayer();
                         this.leftBound = 2 * tscale * 256;
                         this.rightBound = size.width - (4 * tscale * 256);
                         this.setNodeToFollow(sprite);
+
                         //GUI: add scene objects
                         this.createSceneEntities();
                     }

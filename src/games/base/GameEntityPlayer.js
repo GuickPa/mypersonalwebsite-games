@@ -31,7 +31,8 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
     init: function(fileName, rect, rotated){
         var self = this;
         self._super(fileName, rect, rotated);
-        self.speed = 100;
+        self.speed = 256 * 2.5;
+        self.jumpForce = 256 * 9;
         self.setTag(window.cocos.cc.kGameEntityPlayerTag);
         self.weapon = window.cocos.cc.RobotLaserGun.create(self, window.cocos.cc.kGameEntityEnemyTag);
         self.lifePoints = 1;
@@ -109,44 +110,9 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         this.move(dt);
     },
 
-    onGroundTouched: function(entity){
-        //GUI: when it touches the ground, if it's running, restart "run" animation, else "idle" animation
-        if(this.velocity.x != 0){
-            this.playAnimation("run", true);
-        }
-        else{
-            this.playAnimation("idle", true);
-        }
-    },
-
-    idle: function(){
-        //GUI: if no keys are pressed, and there is no animation, play default (idle) animation
-        if(this.keyMask == 0 && this.onGround) {
-            this.playAnimation("idle", true);
-        }
-    },
-
-    runRight: function(){
-        this.velocity.x = this.speed;
-        this.setFlippedX(false);
-    },
-
-    runLeft: function(){
-        this.velocity.x = -this.speed;
-        this.setFlippedX(true);
-    },
-
-    jump: function(){
-        if (this.onGround) {
-            this.onGround = false;
-            this.velocity.y += this.jumpForce;
-            this.playAnimation("jump", false);
-        }
-    },
-
     fire: function(moving){
         //GUI: check if it can fire (canFire flag is to avoid continuos propagation of bullets)
-        if(this.onGround && this.weapon) {
+        if(this.  onGround && this.weapon) {
             if(this.weapon.canFire()) {
                 //GUI: make the weapon to fire
                 var direction = window.cocos.cc.p(this.isFlippedX() ? -1 : 1, 0);
@@ -203,17 +169,14 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
     },
 
     onZeroLifePoints: function(){
-        //GUI: play fire animation
-        this.playAnimation("dead", false, this.onEndDeadAnimation, this);
-        this.setTag(window.cocos.cc.kGameEntityDeadPlayerTag);
+        //GUI: force change state to death
+        if(this.stateMachine != null){
+            this.stateMachine.changeState(window.cocos.cc.kIAStateDeath);
+        }
     },
 
     onEndDeadAnimation: function(){
-        //GUI: broadcast dead event
-        var gm = window.cocos.cc.game.gameManager;
-        if(gm != null){
-            gm.broadcastEvent(window.cocos.cc.GameManagerEvents.kGameManagerEventPlayerDead, this);
-        }
+        
     },
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -272,7 +235,7 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
     },
 
     onKeyReleased: function (key, event) {
-        if(this.isAlive()) {
+       /* if(this.isAlive())*/ {
             switch (key) {
                 case 32:
                     //GUI: space

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="9" tilewidth="256" tileheight="256" nextobjectid="33">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="9" tilewidth="256" tileheight="256" nextobjectid="34">
  <tileset firstgid="1" name="Tile (5)" tilewidth="256" tileheight="256" tilecount="1" columns="1">
   <image source="Tile (5).png" width="256" height="256"/>
  </tileset>
@@ -57,19 +57,6 @@
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 </data>
  </layer>
- <layer name="Livello tile 3" width="32" height="9">
-  <data encoding="csv">
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,
-0,7,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-</data>
- </layer>
  <layer name="obstacle" width="32" height="9">
   <data encoding="csv">
 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
@@ -81,6 +68,19 @@
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,3,3,3,3,3,0,5,0,0,4,0,0,5,0,3,
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,3,3,3,3,3,0,0,5,4,0,0,0,0,3,3,
 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
+</data>
+ </layer>
+ <layer name="entities" width="32" height="9">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,
+0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <objectgroup name="objects">
@@ -96,8 +96,9 @@
    <properties>
     <property name="count" type="int" value="1"/>
     <property name="delay" type="float" value="0"/>
-    <property name="entityScale" type="float" value="0.2"/>
+    <property name="entityScale" type="float" value="1"/>
     <property name="entityType" value="EnemyMale"/>
+    <property name="layerName" value="entities"/>
    </properties>
    <ellipse/>
   </object>
@@ -105,8 +106,9 @@
    <properties>
     <property name="count" type="int" value="1"/>
     <property name="delay" type="float" value="0"/>
-    <property name="entityScale" type="float" value="0.2"/>
+    <property name="entityScale" type="float" value="1"/>
     <property name="entityType" value="EnemyMale"/>
+    <property name="layerName" value="entities"/>
    </properties>
    <ellipse/>
   </object>
@@ -114,17 +116,19 @@
    <properties>
     <property name="count" type="int" value="1"/>
     <property name="delay" type="float" value="0"/>
-    <property name="entityScale" type="float" value="0.2"/>
+    <property name="entityScale" type="float" value="1"/>
     <property name="entityType" value="EnemyMale"/>
+    <property name="layerName" value="entities"/>
    </properties>
    <ellipse/>
   </object>
-  <object id="32" type="spawner" x="2258" y="2202" width="92" height="92">
+  <object id="32" type="spawner" x="2258" y="2149" width="92" height="92">
    <properties>
     <property name="count" type="int" value="1"/>
     <property name="delay" type="float" value="0"/>
-    <property name="entityScale" type="float" value="0.2"/>
+    <property name="entityScale" type="float" value="1"/>
     <property name="entityType" value="EnemySaw"/>
+    <property name="layerName" value="background"/>
    </properties>
    <ellipse/>
   </object>

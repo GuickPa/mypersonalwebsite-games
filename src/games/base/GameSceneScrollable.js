@@ -39,7 +39,8 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
     update: function (dt) {
         //GUI: scroll itself to follow the target node
         if(this.nodeToFollow){
-            var nx = this.nodeToFollow.getPosition().x + this.getPosition().x;
+            var x = this.nodeToFollow.getPosition().x * (this.tilemap != null ? this.tilemap.getScaleX() : 1)
+            var nx = x + this.getPosition().x;
             //GUI: if node is beyond a boundary, scrolls
             if(nx < this.leftBound){
                 this.velocity.x = this.scrollSpeed;

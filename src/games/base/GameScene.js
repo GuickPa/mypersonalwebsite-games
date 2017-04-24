@@ -27,6 +27,40 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
             this.totalSize = window.cocos.cc.director.getWinSize();
         }
     },
+    
+    getTilemap: function(){
+        return this.tilemap;
+    },
+
+    getChildrenByTagMask: function(tagMask, recursive){
+        if(recursive == null || !recursive) {
+            var list = [];
+            for (var child in this.getChildren()) {
+                if (child.getTag() != -1 && (child.getTag() & tagMask)) {
+                    list.push(child);
+                }
+            }
+
+            return list;
+        }
+
+        return this.getChildrenByTagMaskRecursive(tagMask, null);
+    },
+
+    getChildrenByTagMaskRecursive: function(tagMask, child){
+      //TODO: make recursive search in scene, with first round child = null
+    },
+
+    createPlayer: function(){
+        var player = window.cocos.cc.Player.create("assets/games/player/Idle (1).png");
+        var nodeWhereSpawn = this;
+        if(this.getTilemap() != null){
+            nodeWhereSpawn = this.getTilemap().getLayer("entities");
+            nodeWhereSpawn = nodeWhereSpawn || this;
+        }
+        nodeWhereSpawn.addChild(player, 1);
+        return player;
+    },
 
     setEntityPosition: function(entity, positionName){
         if(entity != null) {
@@ -34,7 +68,7 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
                 //GUI: check with objects
                 var objectsGroups = this.tilemap.getObjectGroups();
                 if (objectsGroups != null) {
-                    var sf = this.tilemap.getScale();
+                    var sf = 1;//this.tilemap.getScale();
                     //GUI: scroll the list of groups
                     for (var i = 0; i < objectsGroups.length; i++) {
                         var group = objectsGroups[i];
@@ -70,15 +104,16 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
                         var types = window.cocos.cc.GameEntitySceneObjectType;
                         //GUI: get tile'size multiplied for tileMap scaling
                         var size = this.tilemap.getTileSize();
-                        var sf = this.tilemap.getScale();
-                        size.width *= sf;
-                        size.height *= sf;
+                        // var sf = this.tilemap.getScale();
+                        // size.width *= sf;
+                        // size.height *= sf;
+                        var sf = 1;
                         for (var i = 0; i < group._objects.length; i++) {
                             var obj = group._objects[i];
                             switch (obj.type){
                                 case types.SPAWNER: {
                                     var position = new window.cocos.cc.p(obj.x * sf, obj.y * sf)
-                                    this.createSpawner({"entityType": obj.entityType, "count": obj.count, "delay": obj.delay, "entityScale": obj.entityScale}, position);
+                                    this.createSpawner({"entityType": obj.entityType, "count": obj.count, "delay": obj.delay, "entityScale": obj.entityScale, "layerName": obj.layerName}, position);
                                 }
                                     break;
                                 

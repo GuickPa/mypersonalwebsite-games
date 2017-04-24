@@ -18,7 +18,7 @@ window.cocos.cc.EnemySaw = window.cocos.cc.Enemy.extend({
         var self = this;
         self._super(fileName, rect, rotated);
         self.stateMachine = null;
-        self.weapon = null;//window.cocos.cc.ZombieClaw.create(self, window.cocos.cc.kGameEntityPlayerTag);
+        self.weapon = window.cocos.cc.SawWeapon.create(self, window.cocos.cc.kGameEntityPlayerTag);
         self.lifePoints = -1;
         self.gravity = window.cocos.cc.p(0,0);
         self.velocity = window.cocos.cc.p(0,0);
@@ -49,6 +49,9 @@ window.cocos.cc.EnemySaw = window.cocos.cc.Enemy.extend({
 
     update: function (dt) {
         this._super(dt);
+        if(this.weapon != null){
+            this.weapon.fire();
+        }
     },
 
     move: function(dt) {

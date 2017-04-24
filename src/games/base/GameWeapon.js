@@ -32,6 +32,14 @@ window.cocos.cc.GameWeapon = window.cocos.cc.Class.extend({
     canFire: function(){
         return this.currentDeltaFireTime >= this.fireTime;
     },
+    
+    setRange: function(range){
+        this.range = range;
+    },
+    
+    onOwnerScale: function(scale, scaleY){
+        
+    },
 
     //GUI: parent node is the node where add bullets - if null, get current scene from director
     fire: function(position, direction, scale, parentNode){
@@ -47,7 +55,56 @@ window.cocos.cc.GameWeapon = window.cocos.cc.Class.extend({
                 var list = [];
                 for (var index = 0; index < children.length; index++) {
                     var child = children[index];
-                    if (child.getTag() & this.enemyTag) {
+                    if (child.getTag() != -1 && (child.getTag() & this.enemyTag)){
+                        //GUI: omni direction weapon: look for enemies in range from center of the owner entity
+                        var dist = this.calcDistanceWithEntity(child);
+                        if(dist <= this.range){
+                            list.push(child);
+                        }
+                    }
+                }
+
+                return list;
+            }
+        }
+
+        return null;
+    },
+
+    //GUI: return a list of all the entities with a specified tag which distance is less or equal to this.range
+    getEnemiesInRangeByCollision: function(){
+        if(this.entity != null) {
+            var scene = window.cocos.cc.director.getRunningScene();
+            if (scene) {
+                var children = scene.getChildren();
+                var list = [];
+                for (var index = 0; index < children.length; index++) {
+                    var child = children[index];
+                    if (child.getTag() != -1 && (child.getTag() & this.enemyTag)) {
+                        //GUI: omni direction weapon: look for enemies in range from center of the owner entity
+                        var dist = this.calcDistanceWithEntityByCollision(child);
+                        if(dist <= this.range){
+                            list.push(child);
+                        }
+                    }
+                }
+                return list;
+            }
+        }
+
+        return null;
+    },
+
+    //GUI: return a list of all the entities with a specified tag which distance is less or equal to this.range
+    getEnemiesInFrontRange: function(){
+        if(this.entity != null) {
+            var scene = window.cocos.cc.director.getRunningScene();
+            if (scene) {
+                var children = scene.getChildren();
+                var list = [];
+                for (var index = 0; index < children.length; index++) {
+                    var child = children[index];
+                    if (child.getTag() != -1 && (child.getTag() & this.enemyTag)) {
                         //GUI: one direction weapon: look only for enemies in front of this.entity
                         if(this.entity.isFlippedX()){
                             //GUI: if flipped, this.entity is looking to the left. Looking for entities with position.x less or equal to this.entity.getPositionX
@@ -79,9 +136,26 @@ window.cocos.cc.GameWeapon = window.cocos.cc.Class.extend({
 
     calcDistanceWithEntity: function(entity){
         if(entity && this.entity) {
-            //GUI: calc the distance vector between entity owner of thi state and founded enemy node
+            //GUI: calc the distance vector between entity owner of this weapon and founded enemy node
             var dv = window.cocos.cc.p(entity.getPosition().x - this.entity.getPosition().x, entity.getPosition().y - this.entity.getPosition().y);
             var dist = Math.sqrt((dv.x * dv.x) + (dv.y * dv.y));
+            return dist;
+        }
+        //GUI: invalid value: distance is always positive
+        return -1
+    },
+
+    //GUI: calc for distance using collisionSize or contentSize
+    calcDistanceWithEntityByCollision: function(entity){
+        if(entity && this.entity) {
+            var size = entity.collisionSize || entity._contentSize
+            var size = window.cocos.cc.size(size.width, size.height);
+            size.width *= entity.getScaleX();
+            size.height *= entity.getScaleY();
+            //GUI: calc the distance vector between entity owner of this weapon and founded enemy node' rect
+            var dx = Math.max(Math.abs(this.entity.getPosition().x - entity.getPosition().x) - size.width / 2, 0);
+            var dy = Math.max(Math.abs(this.entity.getPosition().y - entity.getPosition().y) - size.height / 2, 0);
+            var dist = Math.sqrt((dx * dx) + (dy * dy));
             return dist;
         }
         //GUI: invalid value: distance is always positive
@@ -159,7 +233,7 @@ window.cocos.cc.ZombieClaw = window.cocos.cc.GameWeapon.extend({
         this._super(position, direction, scale, parentNode);
         if(this.canFire()) {
             //GUI: get enemies in range
-            var list = this.getEnemiesInRange();
+            var list = this.getEnemiesInFrontRange();
             if(list != null){
                 for(var i = 0; i < list.length; i++){
                     var entity = list[i];
@@ -173,4 +247,46 @@ window.cocos.cc.ZombieClaw = window.cocos.cc.GameWeapon.extend({
 });
 window.cocos.cc.ZombieClaw.create = function(entity, enemyTag){
     return new window.cocos.cc.ZombieClaw(entity, enemyTag);
+};
+
+window.cocos.cc.SawWeapon = window.cocos.cc.GameWeapon.extend({
+    _className: "SawWeapon",
+    //GUI: custom
+
+    ctor: function(entity, enemyTag){
+        this._super(entity, enemyTag);
+    },
+
+    init: function(entity, enemyTag){
+        this._super(entity, enemyTag);
+        this.range = 0.8 * this.entity._getWidth() * this.entity.getScaleX()/2; //GUI: don't use all the width
+        this.maxAmmo = -1;
+        this.currentAmmo = - 1;
+        this.fireTime = 0;
+        this.currentDeltaFireTime = this.fireTime;
+        this.damagePoints = 1;
+    },
+
+    onOwnerScale: function(scale, scaleY){
+        this.range = 0.8 * this.entity._getWidth() * this.entity.getScaleX()/2; //GUI: don't use all the width
+    },
+
+    fire: function(position, direction, scale, parentNode){
+        this._super(position, direction, scale, parentNode);
+        if(this.canFire()) {            
+            //GUI: get enemies in range
+            var list = this.getEnemiesInRangeByCollision();
+            if(list != null){
+                for(var i = 0; i < list.length; i++){
+                    var entity = list[i];
+                    if(entity.onWeaponHit != null){
+                        entity.onWeaponHit(this, this.getDamagePoints())
+                    }
+                }
+            }
+        }
+    },
+});
+window.cocos.cc.SawWeapon.create = function(entity, enemyTag){
+    return new window.cocos.cc.SawWeapon(entity, enemyTag);
 };

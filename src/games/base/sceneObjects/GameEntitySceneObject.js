@@ -37,6 +37,7 @@ window.cocos.cc.GameEntitySpawnerObject = window.cocos.cc.GameEntitySceneObject.
     delay: 0.0, //GUI: dt between one spawn and the next one
     entityType: null, //GUI: identifier of the type of enemy to spawn
     entityScale: 1,
+    layerWhereSpawn: null,
     //GUI: for updates
     currentTime: 0,
     currentCount: 0,
@@ -47,6 +48,7 @@ window.cocos.cc.GameEntitySpawnerObject = window.cocos.cc.GameEntitySceneObject.
         this.delay = params["delay"] ? params["delay"] : 0;
         this.entityScale = params["entityScale"] ? params["entityScale"] : 1;
         this.entityType = params["entityType"];
+        this.layerWhereSpawn = params["layerName"] ? params["layerName"] : null;
         this.currentTime = 0;
         this.currentCount = 0;
         this.scheduleUpdate();
@@ -86,7 +88,13 @@ window.cocos.cc.GameEntitySpawnerObject = window.cocos.cc.GameEntitySceneObject.
                         //GUI: set initial position. Position will be corrected after loading
                         entity.setPosition(this.getPosition().x, this.getPosition().y);
                         entity.setScale(this.entityScale);
-                        scene.addChild(entity, 1);
+                        //GUI: if layer to spawn is defined, spawn in selected layer, else spawn in scene
+                        var nodeWhereSpawn = scene;
+                        if(typeof scene.getTilemap !== 'undefined' && scene.getTilemap() != null && this.layerWhereSpawn != null){
+                            nodeWhereSpawn = scene.getTilemap().getLayer(this.layerWhereSpawn);
+                            nodeWhereSpawn = nodeWhereSpawn || scene;
+                        }
+                        nodeWhereSpawn.addChild(entity, 1);
                         var rect = entity.collisionSize || entity._contentSize;
                         entity.setPosition(entity.getPosition().x, entity.getPosition().y + rect.height/2 * entity.getScaleY());
                         //window.cocos.cc.director.getScheduler().scheduleCallbackForTarget(entity, this.onEntityLoaded, 0.1, false, 0, false);

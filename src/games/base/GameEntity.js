@@ -17,13 +17,13 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     currentAnimationAction: null,
     //GUI: for movements
     //GUI: custom members
-    speed: 70.0,
-    jumpForce: 300.0,
+    speed: 256 * 1.5,
+    jumpForce: 256 * 50,
     onGround: true,
     //GUI: for movement and gravity simulation
     collisionSize: null,
     velocity: window.cocos.cc.p(0,0),
-    gravity: window.cocos.cc.p(0, -10),
+    gravity: window.cocos.cc.p(0, -10 * 256),
     //GUI: reference to tilemap for obstacles
     sceneTilemap: null,
     //GUI: weapon
@@ -54,12 +54,12 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         // after a new value is setted, member is copied into object instance -> http://discuss.cocos2d-x.org/t/cc-class-multiple-instance-problem-cocos2d-js-3-2/19853/5
         self.animations = {};
         self.currentAnimationAction = null;
-        self.speed = 70.0;
-        self.jumpForce = 300.0;
+        self.speed = 256 * 1;
+        self.jumpForce = 256 * 8;
         self.onGround = true;
         self.collisionSize = new window.cocos.cc.Size(self._getWidth(), self._getHeight());
         self.velocity = window.cocos.cc.p(0,0);
-        self.gravity = window.cocos.cc.p(0,-10);
+        self.gravity = window.cocos.cc.p(0, -100);
         self.lifePoints = 1;
         //GUI: set tilemap
         var scene = window.cocos.cc.director.getRunningScene();
@@ -78,6 +78,9 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     setScale: function (scale, scaleY){
         //GUI: call super
         this._super(scale, scaleY);
+        if(this.weapon != null){
+            this.weapon.onOwnerScale(scale, scaleY);
+        }
     },
 
     buildAnimation: function(name, basePath, frames, timePerFrame){
@@ -138,6 +141,29 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         }
     },
 
+    //GUI: helper function
+    getTilemapScale: function(){
+        return this.getTilemapScaleX();
+    },
+
+    getTilemapScaleX: function(){
+        // if(this.sceneTilemap != null){
+        //     return this.sceneTilemap.getScaleX();
+        // }
+
+        return 1;
+    },
+
+    //GUI: helper function
+    getTilemapScaleY: function(){
+        // if(this.sceneTilemap != null){
+        //     return this.sceneTilemap.getScaleY();
+        // }
+
+        return 1;
+    },
+
+
     move: function(dt){
         this.velocity.x += this.gravity.x;
         this.velocity.y += this.gravity.y;
@@ -148,7 +174,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         if(this.sceneTilemap != null){
             //GUI: get tile'size multiplied for tileMap scaling
             var size = this.sceneTilemap.getTileSize();
-            var sf = this.sceneTilemap.getScale();
+            var sf = this.getTilemapScale();
             size.width *= sf;
             size.height *= sf;
             //GUI: check with obstacles
@@ -204,7 +230,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             }
             //GUI: if it is not on a slope, but it is closer to tile's upper surface, adjust y value (prevents problem when climbing a slope and it ends to be near, but under, tile'surface)
             else{
-                var tileUpperY = (currentTile.getPosition().y * this.sceneTilemap.getScaleY()) + tileSize.height;
+                var tileUpperY = (currentTile.getPosition().y * this.getTilemapScaleY()) + tileSize.height;
                 if(Math.abs((this.getPosition().y - halfH) - tileUpperY) <= tileSize.height/20){
                     this.setPositionY(tileUpperY + halfH);
                 }
@@ -230,30 +256,30 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                         //GUI: check for slopes
                         if(properties != null && properties["sr"] != null && properties["sl"] != null){
                             //GUI: calc left and right of tile
-                            var tileL = tile.getPosition().x * this.sceneTilemap.getScaleX();
-                            var tileW = tile._getWidth() * this.sceneTilemap.getScaleX();
+                            var tileL = tile.getPosition().x * this.getTilemapScaleX();
+                            var tileW = tile._getWidth() * this.getTilemapScaleX();
                             //GUI: calc difference between position and this'position.x
                             var dsy = (this.getPosition().x - tileL) / tileW;
                             if(0 <= dsy && dsy <= 1) {
                                 var sl = parseFloat(properties["sl"]);
                                 var bottomY = this.getPosition().y - halfH;
-                                var slopeY = (tile.getPosition().y + (tile._getHeight() * sl)) * this.sceneTilemap.getScaleY();
+                                var slopeY = (tile.getPosition().y + (tile._getHeight() * sl)) * this.getTilemapScaleY();
                                 //GUI: if slope is less than bottom of this, or is behind, go on
-                                if (bottomY >= slopeY || this.getPosition().x >= (tile.getPosition().x * this.sceneTilemap.getScaleX())) {
+                                if (bottomY >= slopeY || this.getPosition().x >= (tile.getPosition().x * this.getTilemapScaleX())) {
                                     min = dx;
                                     this.setPositionX(p.x + min);
                                     return;
                                 }
                                 else {
                                     //GUI: if going right, distance is with tile' x pos and this'front face
-                                    var dist = Math.round(((tile.getPosition().x - 1) * this.sceneTilemap.getScaleX()) - fx);
+                                    var dist = Math.round(((tile.getPosition().x - 1) * this.getTilemapScaleX()) - fx);
                                     min = Math.min(Math.max(0, dist), min);
                                 }
                             }
                         }
                         else {
                             //GUI: if going right, distance is with tile' x pos and this'front face
-                            var dist = Math.round(((tile.getPosition().x - 1) * this.sceneTilemap.getScaleX()) - fx);
+                            var dist = Math.round(((tile.getPosition().x - 1) * this.getTilemapScaleX()) - fx);
                             min = Math.min(Math.max(0, dist), min);
                         }
                     }
@@ -283,29 +309,29 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                         //GUI: check for slopes
                         if(properties != null && properties["sr"] != null && properties["sl"] != null){
                             //GUI: calc left and right of tile
-                            var tileL = tile.getPosition().x * this.sceneTilemap.getScaleX();
+                            var tileL = tile.getPosition().x * this.getTilemapScaleX();
                             var tileW = tileSize.width;
                             //GUI: calc difference between position and this'position.x
                             var dsy = (this.getPosition().x - tileL) / tileW;
                             if(0 <= dsy && dsy <= 1) {
                                 var sr = parseFloat(properties["sr"]);
                                 var bottomY = this.getPosition().y  - halfH;
-                                var slopeY = (tile.getPosition().y + (tile._getHeight() * sr)) * this.sceneTilemap.getScaleY();
+                                var slopeY = (tile.getPosition().y + (tile._getHeight() * sr)) * this.getTilemapScaleY();
                                 //GUI: if slope is less than bottom of this, or is behind, go on
-                                if (bottomY >= slopeY || this.getPosition().x <= ((tile.getPosition().x * this.sceneTilemap.getScaleX()) + tileSize.width)) {
+                                if (bottomY >= slopeY || this.getPosition().x <= ((tile.getPosition().x * this.getTilemapScaleX()) + tileSize.width)) {
                                     this.setPositionX(p.x + Math.max(min, dx));
                                     return;
                                 }
                                 else {
                                     //GUI: if going left, distance is with tile' x pos + tile's width and this'back face
-                                    var dist = Math.round((((tile.getPosition().x + 1) * this.sceneTilemap.getScaleX()) + tileSize.width) - fx);//GUI: size already scaled
+                                    var dist = Math.round((((tile.getPosition().x + 1) * this.getTilemapScaleX()) + tileSize.width) - fx);//GUI: size already scaled
                                     min = Math.max(Math.min(0, dist), min);
                                 }
                             }
                         }
                         else {
                             //GUI: if going left, distance is with tile' x pos + tile's width and this'back face
-                            var dist = Math.round((((tile.getPosition().x + 1) * this.sceneTilemap.getScaleX()) + tileSize.width) - fx);//GUI: size already scaled
+                            var dist = Math.round((((tile.getPosition().x + 1) * this.getTilemapScaleX()) + tileSize.width) - fx);//GUI: size already scaled
                             min = Math.max(Math.min(0, dist), min);
                         }
                     }
@@ -338,7 +364,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                     var tile = obstacles.getTileAt(window.cocos.cc.p(i, row));
                     if (tile) {
                         //GUI: if going up, distance is with tile'y pos and this'upper face
-                        var dist = ((tile.getPosition().y - 1) * this.sceneTilemap.getScaleY()) - fy;
+                        var dist = ((tile.getPosition().y - 1) * this.getTilemapScaleY()) - fy;
                         if(dist >= 0) {
                             var step = Math.min(dist, dy);
                             this.setPositionY(p.y + step);
@@ -364,12 +390,12 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                         //GUI: get tile's properties
                         var gid = obstacles.getTileGIDAt(tp);
                         var properties = this.sceneTilemap.getPropertiesForGID(gid);
-                        var tileY = tile.getPosition().y * this.sceneTilemap.getScaleY();
+                        var tileY = tile.getPosition().y * this.getTilemapScaleY();
                         if(properties != null && (properties["sl"] != null || properties["sr"] != null)){
                             var sr = parseFloat(properties["sr"]);
                             var sl = parseFloat(properties["sl"]);
                             //GUI: calc left and right of tile
-                            var tileL = tile.getPosition().x * this.sceneTilemap.getScaleX();
+                            var tileL = tile.getPosition().x * this.getTilemapScaleX();
                             var tileW = tileSize.width;
                             //GUI: calc difference between position and this'position.x
                             var dsy = (this.getPosition().x - tileL) / tileW;
@@ -409,7 +435,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                         }
                         else {
                             //GUI: if going down, distance is with tile'y pos + tile's height and this'bottom face
-                            var dist = Math.round((((tile.getPosition().y + 1) * this.sceneTilemap.getScaleY()) + tileSize.height) - fy);//GUI: size already scaled
+                            var dist = Math.round((((tile.getPosition().y + 1) * this.getTilemapScaleY()) + tileSize.height) - fy);//GUI: size already scaled
                             min = Math.max(Math.min(0, dist), min);
                             //GUI: if goind down, it is not on ground
                             //this.onGround = false;
@@ -463,7 +489,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
 
     checkForObjectsInObjectGroup: function(group){
         var p = this.getPosition();
-        var sf = this.sceneTilemap.getScale();
+        var sf = this.getTilemapScale();
         for(var i = 0; i < group._objects.length; i++){
             var obj = group._objects[i];
             var rect = window.cocos.cc.rect(obj.x * sf, obj.y * sf, obj.width * sf, obj.height * sf);

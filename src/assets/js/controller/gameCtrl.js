@@ -56,21 +56,7 @@
                         onLoadTiledMap: function(){
                             var size = cc.director.getWinSize();
                             var tscale = size.height/(9*256);
-                            var sprite = cc.Player.create("assets/games/player/Idle (1).png");
-                            sprite.setScale(0.2);
-                            //sprite.setPosition(2048 * size.height/(9*256), 1536 * size.height/(9*256));
-                            this.addChild(sprite, 1);                            
-                            //GUI: adding an enemy
-                            // var enemy = cc.EnemyMale.create("assets/games/enemy/male/Idle (1).png");
-                            // enemy.setScale(0.25);
-                            // enemy.setPosition(512 * size.height/(9*256), 768 * size.height/(9*256));
-                            // this.addChild(enemy, 1);
-                            //
-                            // enemy = cc.EnemyMale.create("assets/games/enemy/male/Idle (1).png");
-                            // enemy.setScale(0.25);
-                            // enemy.setPosition(7168 * size.height/(9*256), 768 * size.height/(9*256));
-                            // this.addChild(enemy, 1);
-
+                            var sprite = this.createPlayer();
                             this.leftBound = 2 * tscale * 256;
                             this.rightBound = size.width - (4 * tscale * 256);
                             this.setNodeToFollow(sprite);

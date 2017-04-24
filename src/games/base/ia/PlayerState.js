@@ -16,10 +16,12 @@ window.cocos.cc.PlayerState = window.cocos.cc.IAState.extend({
 
     onEnter: function(){
         this._super();
+        //console.log("Enter state", this.stateName);
     },
 
     onExit: function(){
         this._super();
+        //console.log("Exit state", this.stateName);
     },
 
     inputUpdate: function(value){
@@ -163,6 +165,7 @@ window.cocos.cc.PlayerStateJump = window.cocos.cc.PlayerState.extend({
     _className: "PlayerStateJump",
     //GUI: custom
     stateName: window.cocos.cc.kIAStateJump,
+    velocityXFactor: 1.5,
 
     ctor: function(){
         window.cocos.cc.PlayerState.prototype.ctor.call();
@@ -191,11 +194,11 @@ window.cocos.cc.PlayerStateJump = window.cocos.cc.PlayerState.extend({
             //GUI: for movement, right has priority to left
             if (value & mask.right) {
                 this.entity.setFlippedX(false);
-                this.entity.velocity.x = this.entity.speed;
+                this.entity.velocity.x = this.entity.speed * this.velocityXFactor;
             }
             else if (value & mask.left) {
                 this.entity.setFlippedX(true);
-                this.entity.velocity.x = -this.entity.speed;
+                this.entity.velocity.x = -this.entity.speed * this.velocityXFactor;
             }
         }
         else{
@@ -292,3 +295,105 @@ window.cocos.cc.PlayerStateSlide = window.cocos.cc.PlayerState.extend({
 window.cocos.cc.PlayerStateSlide.create = function(){
     return new window.cocos.cc.PlayerStateSlide();
 }
+
+window.cocos.cc.PlayerStateDeath = window.cocos.cc.PlayerState.extend({
+    _className: "PlayerStateDeath",
+    //GUI: custom
+    //GUI: state name
+    stateName: window.cocos.cc.kIAStateDeath,
+
+    ctor: function(){
+        window.cocos.cc.IAState.prototype.ctor.call();
+        this.init();
+    },
+
+    init: function(){
+        this._super();
+    },
+
+    update: function(dt){
+        this._super(dt);
+
+    },
+
+    onEnter: function(){
+        this._super();
+        if(this.entity != null) {
+            this.entity.velocity = window.cocos.cc.p(0, this.entity.velocity.y);
+            this.entity.setTag(window.cocos.cc.kGameEntityDeadPlayerTag);
+            this.entity.playAnimation("dead", false, this.endAnimationCallback, this);
+        }
+    },
+
+    onExit: function(){
+        this._super();
+    },
+
+    endAnimationCallback: function(){
+        this.entity.stateMachine.changeState(window.cocos.cc.kIAStateDead);
+    },
+
+    ////////////////////////////////////////////////////////////////////
+    //GUI: events on movements
+    onGroundTouched: function(entity){
+
+    },
+
+    onHitEvent: function(entity){
+
+    },
+});
+window.cocos.cc.PlayerStateDeath.create = function () {
+    return new window.cocos.cc.PlayerStateDeath();
+};
+
+//GUI: stay dead for a while, then... (It's a zombie, dude!)
+window.cocos.cc.PlayerStateDead = window.cocos.cc.PlayerState.extend({
+    _className: "PlayerStateDead",
+    //GUI: custom
+    //GUI: state name
+    stateName: window.cocos.cc.kIAStateDead,
+
+    ctor: function(){
+        window.cocos.cc.IAState.prototype.ctor.call();
+        this.init();
+    },
+
+    init: function(){
+        this._super();
+    },
+
+    update: function(dt){
+        this._super(dt);
+
+    },
+
+    onEnter: function(){
+        this._super();
+        if(this.entity != null) {
+            this.entity.velocity = window.cocos.cc.p(0, this.entity.velocity.y);
+        }
+        //GUI: broadcast dead event
+        var gm = window.cocos.cc.game.gameManager;
+        if(gm != null){
+            gm.broadcastEvent(window.cocos.cc.GameManagerEvents.kGameManagerEventPlayerDead, this.entity);
+        }
+    },
+
+    onExit: function(){
+        this._super();
+    },
+
+    ////////////////////////////////////////////////////////////////////
+    //GUI: events on movements
+    onGroundTouched: function(entity){
+
+    },
+
+    onHitEvent: function(entity){
+
+    },
+});
+window.cocos.cc.PlayerStateDead.create = function () {
+    return new window.cocos.cc.PlayerStateDead();
+};
