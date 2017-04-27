@@ -74,6 +74,12 @@ window.cocos.cc.IAStateMachine = window.cocos.cc.Class.extend({
         }
 
     },
+
+    onBorder: function(){
+        if(this.currentState != null){
+            this.currentState.onBorder();
+        }
+    }
 });
 
 window.cocos.cc.IAStateMachine.create = function (entity) {

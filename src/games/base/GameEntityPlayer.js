@@ -102,6 +102,11 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         // }
     },
 
+    //GUI: override
+    checkForFreeFall: function(){
+        return false;
+    },
+
     update: function (dt) {
         if(this.stateMachine != null){
             this.stateMachine.inputUpdate(this.keyMask);

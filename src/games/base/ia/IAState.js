@@ -65,6 +65,10 @@ window.cocos.cc.IAState = window.cocos.cc.Class.extend({
 
     },
 
+    onBorder: function(){
+
+    },
+
     //GUI: custom: look for a player and calc the distance
     checkDistanceWithEnemy: function(tagMask){
         if(this.entity != null) {
@@ -216,6 +220,14 @@ window.cocos.cc.IAStateWalk = window.cocos.cc.IAState.extend({
             this.entity.velocity = window.cocos.cc.p(-this.entity.velocity.x, 0);
         }
     },
+
+    onBorder: function(){
+        if(this.entity != null) {
+            //GUI: inverts texture flipping and velocity
+            this.entity.setFlippedX(!this.entity.isFlippedX());
+            this.entity.velocity = window.cocos.cc.p(-this.entity.velocity.x, 0);
+        }
+    },
 });
 window.cocos.cc.IAStateWalk.create = function () {
     return new window.cocos.cc.IAStateWalk();
@@ -282,6 +294,14 @@ window.cocos.cc.IAStateAttack = window.cocos.cc.IAState.extend({
     },
 
     onHitEvent: function(entity){
+        if(this.entity != null) {
+            //GUI: inverts texture flipping and velocity
+            this.entity.setFlippedX(!this.entity.isFlippedX());
+            this.entity.velocity = window.cocos.cc.p(-this.entity.velocity.x, 0);
+        }
+    },
+
+    onBorder: function(){
         if(this.entity != null) {
             //GUI: inverts texture flipping and velocity
             this.entity.setFlippedX(!this.entity.isFlippedX());

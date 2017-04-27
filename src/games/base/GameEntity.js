@@ -201,19 +201,36 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         }
     },
     
-    //GUI: perform custom check on a tile
+    //GUI: return a flag to tell the entity if it has to perform a custom check on a tile
     checkTile: function(tile){
         return true;
+    },
+
+    //GUI: return a flag to tell the entity if it has to perform a custom check for free falls in the next step
+    checkForFreeFall: function(){
+        return true;
+    },
+
+    //GUI: check for empty tile at position col, row
+    checkForEmptyTile: function(layer, col, row){
+        var tp = window.cocos.cc.p(col, row);
+        if(col >= 0 && col < layer.getLayerSize().width) {
+            if (row >= 0 && row < layer.getLayerSize().height) {
+                var currentTile = layer.getTileAt(tp);
+                return currentTile == null;
+            }
+        }
+        return false;
     },
 
     moveX: function(dx, dy, dt, p, obstacles, tileSize){
         //GUI: getting tileset lines which this.bb intersect with (opposite axis)
         var halfH = (this.collisionSize.height / 2 * this.getScaleY());
         var max = obstacles.getLayerSize().height -1;
-        var lowerBound = Math.round((p.y - halfH) / tileSize.height);
+        var lowerBound = Math.floor((p.y - halfH) / tileSize.height);
         var upperBound = Math.round((p.y + halfH) / tileSize.height);
-        var minY = Math.max(0, lowerBound); //GUI: todo: consider using Math.round
-        var maxY = Math.min(max, upperBound); //GUI: todo: consider using Math.round
+        var minY = Math.max(0, lowerBound);
+        var maxY = Math.min(max, upperBound);
         var colX = Math.floor(p.x / tileSize.width);
         //GUI: first check if it is on slope
         var tp = window.cocos.cc.p(colX, max - minY);
@@ -226,6 +243,27 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             if (properties != null && properties["sr"] != null && properties["sl"] != null) {
                 //GUI: if it is on slope, just move torward to direction
                 this.setPositionX(p.x + dx);
+                //GUI: check for free fall
+                if(this.checkForFreeFall()) {
+                    if(dx > 0) {
+                        if (this.checkForEmptyTile(obstacles, colX + 1, max - minY) && this.checkForEmptyTile(obstacles, colX + 1, max - minY + 1)) {
+                            var dist = Math.abs(((colX + 1) * tileSize.width) - this.getPositionX());
+                            if (dist < Math.abs(dx)) {
+                                this.onBorder();
+                                return;
+                            }
+                        }
+                    }
+                    else if (dx < 0){
+                        if (this.checkForEmptyTile(obstacles, colX - 1, max - minY) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 1)) {
+                            var dist = Math.abs(((colX - 1) * tileSize.width + tileSize.width) - this.getPositionX());
+                            if (dist < Math.abs(dx)) {
+                                this.onBorder();
+                                return;
+                            }
+                        }
+                    }
+                }
                 return;
             }
             //GUI: if it is not on a slope, but it is closer to tile's upper surface, adjust y value (prevents problem when climbing a slope and it ends to be near, but under, tile'surface)
@@ -247,7 +285,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             for (var i = Math.min(max, max - minY); i >= Math.max(0,max - maxY); i--) {
                 //GUI: scroll cols
                 for (var col = colX; col <= colMax; col++) {
-                    tp = window.cocos.cc.p(col, i)
+                    tp = window.cocos.cc.p(col, i);
                     var tile = obstacles.getTileAt(tp);
                     if (tile) {
                         //GUI: get tile's properties
@@ -290,6 +328,18 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             if(min <= dx){
                 this.onHitEvent();
             }
+            else{
+                //GUI: check for free fall
+                if(this.checkForFreeFall()) {
+                    if (this.checkForEmptyTile(obstacles, colX + 1, max - minY) && this.checkForEmptyTile(obstacles, colX + 1, max - minY + 1)) {
+                        var dist = Math.abs(((colX + 1)* tileSize.width) - this.getPositionX());
+                        if(dist < Math.abs(dx)) {
+                            this.onBorder();
+                            return;
+                        }
+                    }
+                }
+            }
             return;
         }
         else if(dx < 0){
@@ -320,6 +370,16 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                 //GUI: if slope is less than bottom of this, or is behind, go on
                                 if (bottomY >= slopeY || this.getPosition().x <= ((tile.getPosition().x * this.getTilemapScaleX()) + tileSize.width)) {
                                     this.setPositionX(p.x + Math.max(min, dx));
+                                    //GUI: check for free fall
+                                    if(this.checkForFreeFall()) {
+                                        if (this.checkForEmptyTile(obstacles, colX - 1, max - minY) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 1)) {
+                                            var dist = Math.abs(((colX - 1) * tileSize.width + tileSize.width) - fx);
+                                            if(dist < Math.abs(dx)) {
+                                                this.onBorder();
+                                                return;
+                                            }
+                                        }
+                                    }
                                     return;
                                 }
                                 else {
@@ -341,6 +401,18 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             this.setPositionX(p.x + step);
             if(min >= dx){
                 this.onHitEvent();
+            }
+            else{
+                //GUI: check for free fall
+                if(this.checkForFreeFall()) {
+                    if (this.checkForEmptyTile(obstacles, colX - 1, max - minY) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 1)) {
+                        var dist = Math.abs(((colX - 1) * tileSize.width + tileSize.width) - fx);
+                        if(dist < Math.abs(dx)) {
+                            this.onBorder();
+                            return;
+                        }
+                    }
+                }
             }
             return;
         }
@@ -534,6 +606,10 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     },
     
     onHitEvent: function(entity){
+
+    },
+
+    onBorder: function(){
 
     },
 

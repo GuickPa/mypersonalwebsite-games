@@ -46,6 +46,12 @@ window.cocos.cc.Enemy = window.cocos.cc.GameEntity.extend({
         }
     },
 
+    onBorder: function(){
+        if(this.stateMachine != null){
+            this.stateMachine.onBorder();
+        }
+    },
+
     ////////////////////////////////////////////////////////////////////
     //GUI: handling life points
     onWeaponHit: function(weapon, damagePoints){

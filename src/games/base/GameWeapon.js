@@ -259,7 +259,7 @@ window.cocos.cc.SawWeapon = window.cocos.cc.GameWeapon.extend({
 
     init: function(entity, enemyTag){
         this._super(entity, enemyTag);
-        this.range = 0.8 * this.entity._getWidth() * this.entity.getScaleX()/2; //GUI: don't use all the width
+        this.range = 0.7 * this.entity._getWidth() * this.entity.getScaleX()/2; //GUI: don't use all the width
         this.maxAmmo = -1;
         this.currentAmmo = - 1;
         this.fireTime = 0;
@@ -268,7 +268,7 @@ window.cocos.cc.SawWeapon = window.cocos.cc.GameWeapon.extend({
     },
 
     onOwnerScale: function(scale, scaleY){
-        this.range = 0.8 * this.entity._getWidth() * this.entity.getScaleX()/2; //GUI: don't use all the width
+        this.range = 0.7 * this.entity._getWidth() * this.entity.getScaleX()/2; //GUI: don't use all the width
     },
 
     fire: function(position, direction, scale, parentNode){
