@@ -30,6 +30,16 @@ window.cocos.cc.GameEntityMovingBox = window.cocos.cc.GameEntitySceneObject.exte
         return true;
     },
 
+    getRect: function(){
+        if(this.tile){
+            var p = this.tile.getPosition();
+            var rect =  window.cocos.cc.rect(p.x, p.y, this.tile._getWidth(), this.tile._getHeight());
+            return rect;
+        }
+
+        return null;
+    },
+
     update: function (dt) {
         this._super(dt);
         this.move(dt);
@@ -50,6 +60,19 @@ window.cocos.cc.GameEntityMovingBox = window.cocos.cc.GameEntitySceneObject.exte
             if(this.dy >= this.maxDY){
                 this.dy = 0;
                 this.velocity.y *= -1;
+            }
+        }
+    },
+    
+    onHitEntity: function(entity){
+        if(entity){
+            //GUI: set entity velocity and position
+            if(entity.velocity){
+                entity.velocity.y = 0;
+                entity.applyForce(this.velocity.x, this.velocity.y);
+                var h = entity.collisionSize ? entity.collisionSize.height/2 : entity._getWidth()/2;
+                entity.setPositionY(this.tile.getPositionY() + this.tile._getHeight() + h + 1);
+                entity.onGroundTouched();
             }
         }
     }

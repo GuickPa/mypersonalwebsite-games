@@ -7,9 +7,11 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
     //GUI: custom:
     tilemap: null,
     totalSize: null,
+    platforms: null,
     
     ctor:function () {
         this._super();
+        this.platforms = [];
         this.setAnchorPoint(0, 0);
     },
     
@@ -30,6 +32,10 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
     
     getTilemap: function(){
         return this.tilemap;
+    },
+    
+    getPlatforms: function(){
+        return this.platforms;
     },
 
     getChildrenByTagMask: function(tagMask, recursive){
@@ -172,6 +178,7 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
                                     var tile = group.getTileAt(tp);
                                     var mb = window.cocos.cc.GameEntityMovingBox.create(tile, properties);
                                     group.addChild(mb);
+                                    this.platforms.push(mb);
                                 }
                                     break;
 

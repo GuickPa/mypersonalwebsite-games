@@ -115,6 +115,38 @@ window.cocos.cc.Player = window.cocos.cc.GameEntity.extend({
         this.move(dt);
     },
 
+    //GUI: check collision with platform
+    checkPlatforms: function(dx, dy, dt) {
+        var scene = window.cocos.cc.director.getRunningScene();
+        if(scene && scene.getPlatforms && dy <= 0) {
+            var platforms = scene.getPlatforms();
+            var halfW = (this.collisionSize.width / 2 * this.getScaleX());
+            var halfH = (this.collisionSize.height / 2 * this.getScaleY());
+            var y = this.getPositionY() - halfH;
+            var pl = window.cocos.cc.p(this.getPositionX() - halfW, y);
+            var pr = window.cocos.cc.p(this.getPositionX() + halfW, y);
+            //GUI: check bottom corners of collisionRect of this entity with each platform to see if this is above one of them
+            for (var i = 0; i < platforms.length; i++) {
+                //GUI: first check y distance
+                var pt = platforms[i];
+                var pRect = pt.getRect();
+                var ptY = pRect.y + pRect.height;
+                var pdy = y - ptY;
+                if(pdy >= -26 && pdy <= Math.abs(dy)){
+                    //GUI: check if at least one of the corner is in the length of platform
+                    var left = (pRect.x <= pl.x) && (pl.x <= (pRect.x + pRect.width));
+                    var right = (pRect.x <= pr.x) && (pr.x <= (pRect.x + pRect.width));
+                    if(left || right){
+                        //GUI: entity is above the platform - send event to platform
+                        pt.onHitEntity(this);
+                        //GUI: no need to do further check
+                        return;
+                    }
+                }
+            }
+        }
+    },
+
     fire: function(moving){
         //GUI: check if it can fire (canFire flag is to avoid continuos propagation of bullets)
         if(this.  onGround && this.weapon) {

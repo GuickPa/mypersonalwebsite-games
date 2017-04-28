@@ -23,6 +23,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     //GUI: for movement and gravity simulation
     collisionSize: null,
     velocity: window.cocos.cc.p(0,0),
+    appliedForce: window.cocos.cc.p(0,0),
     gravity: window.cocos.cc.p(0, -10 * 256),
     //GUI: reference to tilemap for obstacles
     sceneTilemap: null,
@@ -59,6 +60,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         self.onGround = true;
         self.collisionSize = new window.cocos.cc.Size(self._getWidth(), self._getHeight());
         self.velocity = window.cocos.cc.p(0,0);
+        self.appliedForce = window.cocos.cc.p(0,0);
         self.gravity = window.cocos.cc.p(0, -100);
         self.lifePoints = 1;
         //GUI: set tilemap
@@ -81,6 +83,11 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         if(this.weapon != null){
             this.weapon.onOwnerScale(scale, scaleY);
         }
+    },
+    
+    applyForce: function(x,y){
+        this.appliedForce.x += x;
+        this.appliedForce.y += y;
     },
 
     buildAnimation: function(name, basePath, frames, timePerFrame){
@@ -169,8 +176,12 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         this.velocity.y += this.gravity.y;
         var dx = this.velocity.x * dt;
         var dy = this.velocity.y * dt;
+        //GUI: check with platforms
+        this.checkPlatforms(dx, dy, dt);
+        //GUI: check with sceneTilemap
+        dx = (this.velocity.x + this.appliedForce.x) * dt;
+        dy = (this.velocity.y + this.appliedForce.y) * dt;
         var p = this.getPosition();
-        //this.setPosition(p.x + dx, p.y + dy);
         if(this.sceneTilemap != null){
             //GUI: get tile'size multiplied for tileMap scaling
             var size = this.sceneTilemap.getTileSize();
@@ -199,6 +210,13 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         else{
             this.setPosition(p.x + dx, p.y + dy);
         }
+        
+        this.appliedForce.x = 0;
+        this.appliedForce.y = 0;
+    },
+
+    checkPlatforms: function(dx, dy, dt){
+        
     },
     
     //GUI: return a flag to tell the entity if it has to perform a custom check on a tile
@@ -477,7 +495,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                 var rightFloorY = tileH * sr;
                                 var floorY = ((1 - dsy) * leftFloorY + dsy * rightFloorY);
                                 //GUI: this is the position on slope - calc difference
-                                var y = tileY + floorY + 1;
+                                var y = tileY + floorY;
                                 var dist = y - fy;
                                 min = Math.round(dist);
                                 //GUI: if it is on slope, it is on ground
@@ -602,7 +620,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
     ////////////////////////////////////////////////////////////////////
     //GUI: events on movements
     onGroundTouched: function(entity){
-        
+        this.onGround = true;
     },
     
     onHitEvent: function(entity){
