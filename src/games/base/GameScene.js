@@ -35,7 +35,7 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
     getChildrenByTagMask: function(tagMask, recursive){
         var list = [];
         if(recursive == null || !recursive) {
-            var children = this.getChildre();
+            var children = this.getChildren();
             for (var index = 0; index < children.length; index++){
                 var child = children[index];
                 if (child.getTag() != -1 && (child.getTag() & tagMask)) {
@@ -113,30 +113,68 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
     createSceneEntities: function(){
         if (this.tilemap != null) {
             //GUI: check with objects
-            var objectsGroups = this.tilemap.getObjectGroups();
-            if (objectsGroups != null) {
-                var sf = this.tilemap.getScale();
-                //GUI: scroll the list of groups
-                for (var i = 0; i < objectsGroups.length; i++) {
-                    var group = objectsGroups[i];
-                    //GUI: interactive objects layer
-                    if (group.groupName == 'objects') {
-                        var types = window.cocos.cc.GameEntitySceneObjectType;
-                        //GUI: get tile'size multiplied for tileMap scaling
-                        var size = this.tilemap.getTileSize();
-                        // var sf = this.tilemap.getScale();
-                        // size.width *= sf;
-                        // size.height *= sf;
-                        var sf = 1;
-                        for (var i = 0; i < group._objects.length; i++) {
-                            var obj = group._objects[i];
-                            switch (obj.type){
-                                case types.SPAWNER: {
-                                    var position = new window.cocos.cc.p(obj.x * sf, obj.y * sf)
-                                    this.createSpawner({"entityType": obj.entityType, "count": obj.count, "delay": obj.delay, "entityScale": obj.entityScale, "layerName": obj.layerName}, position);
+            this.createEntitiesFromObjectLayer();
+            //GUI: check obstacles
+            this.createSceneObjects()
+        }
+    },
+    //GUI: check object layer for entities
+    createEntitiesFromObjectLayer: function(){
+        var objectsGroups = this.tilemap.getObjectGroups();
+        if (objectsGroups != null) {
+            //GUI: scroll the list of groups
+            for (var i = 0; i < objectsGroups.length; i++) {
+                var group = objectsGroups[i];
+                //GUI: interactive objects layer
+                if (group.groupName == 'objects') {
+                    var types = window.cocos.cc.GameEntitySceneObjectType;
+                    //GUI: get tile'size multiplied for tileMap scaling
+                    var size = this.tilemap.getTileSize();
+                    // var sf = this.tilemap.getScale();
+                    // size.width *= sf;
+                    // size.height *= sf;
+                    var sf = 1;
+                    for (var i = 0; i < group._objects.length; i++) {
+                        var obj = group._objects[i];
+                        switch (obj.type){
+                            case types.SPAWNER: {
+                                var position = new window.cocos.cc.p(obj.x * sf, obj.y * sf)
+                                this.createSpawner({"entityType": obj.entityType, "count": obj.count, "delay": obj.delay, "entityScale": obj.entityScale, "layerName": obj.layerName}, position);
+                            }
+                                break;
+
+                        }
+                    }
+                }
+            }
+        }
+    },
+    //GUI: check obstacle layer for scene objects
+    createSceneObjects: function(){
+        var layers = this.tilemap.allLayers();
+        for (var i = 0; i < layers.length; i++) {
+            var group = layers[i];
+            //GUI: scroll tiles in layer
+            var size = group.getLayerSize();
+            for (var row = 0; row < size.height; row++) {
+                for (var col = 0; col < size.width; col++) {
+                    var tp = window.cocos.cc.p(col, row);
+                    //GUI: get tile's properties
+                    var gid = group.getTileGIDAt(tp);
+                    var properties = this.tilemap.getPropertiesForGID(gid);
+                    if (properties != null) {
+                        var type = properties["entityType"];
+                        if (type) {
+                            var types = window.cocos.cc.GameEntitySceneObjectType;
+                            switch (type) {
+                                case types.MOVINGBOX:
+                                {
+                                    var tile = group.getTileAt(tp);
+                                    var mb = window.cocos.cc.GameEntityMovingBox.create(tile, properties);
+                                    group.addChild(mb);
                                 }
                                     break;
-                                
+
                             }
                         }
                     }
@@ -144,6 +182,7 @@ window.cocos.cc.GameScene = window.cocos.cc.Scene.extend({
             }
         }
     },
+
     
     createSpawner: function(params, position){
         if(params && params["entityType"] != null){

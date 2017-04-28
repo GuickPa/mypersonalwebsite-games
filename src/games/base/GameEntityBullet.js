@@ -156,7 +156,7 @@ window.cocos.cc.RobotBullet = window.cocos.cc.Bullet.extend({
     ctor: function () {
         //GUI: call super
         this._super("assets/games/player/Objects/Bullet_000.png");
-        this.speed = 256 * 3.5;
+        this.speed = 256 * 4.5;
     },
 
     init: function(){

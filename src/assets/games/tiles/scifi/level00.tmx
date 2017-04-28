@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="9" tilewidth="256" tileheight="256" nextobjectid="34">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="9" tilewidth="256" tileheight="256" nextobjectid="35">
  <tileset firstgid="1" name="Tile (5)" tilewidth="256" tileheight="256" tilecount="1" columns="1">
   <image source="Tile (5).png" width="256" height="256"/>
  </tileset>
@@ -35,20 +35,34 @@
    </properties>
   </tile>
  </tileset>
- <tileset firstgid="6" name="DoorOpen" tilewidth="280" tileheight="464" tilecount="1" columns="1">
-  <image source="DoorOpen.png" width="280" height="464"/>
+ <tileset firstgid="6" name="MovingBox" tilewidth="256" tileheight="256" tilecount="1" columns="1">
+  <properties>
+   <property name="dx" type="float" value="1024"/>
+   <property name="dy" type="float" value="0"/>
+   <property name="time" type="float" value="3"/>
+   <property name="type" value="movingBox"/>
+  </properties>
+  <image source="Box.png" width="256" height="256"/>
+  <tile id="0">
+   <properties>
+    <property name="dx" type="float" value="1024"/>
+    <property name="dy" type="float" value="0"/>
+    <property name="entityType" value="movingBox"/>
+    <property name="time" type="float" value="3"/>
+   </properties>
+  </tile>
  </tileset>
- <tileset firstgid="7" name="DoorLocked" tilewidth="280" tileheight="464" tilecount="1" columns="1">
-  <image source="DoorLocked.png" width="280" height="464"/>
- </tileset>
- <tileset firstgid="8" name="Saw" tilewidth="357" tileheight="361" tilecount="1" columns="1">
+ <tileset firstgid="7" name="Saw" tilewidth="357" tileheight="361" tilecount="1" columns="1">
   <image source="Saw.png" width="357" height="361"/>
  </tileset>
- <tileset firstgid="9" name="MovingBox" tilewidth="256" tileheight="256" tilecount="1" columns="1">
-  <image source="Box.png" width="256" height="256"/>
- </tileset>
- <tileset firstgid="10" name="Acid (1)" tilewidth="256" tileheight="256" tilecount="1" columns="1">
+ <tileset firstgid="8" name="Acid (1)" tilewidth="256" tileheight="256" tilecount="1" columns="1">
   <image source="Acid (1).png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="9" name="DoorOpen" tilewidth="280" tileheight="464" tilecount="1" columns="1">
+  <image source="DoorOpen.png" width="280" height="464"/>
+ </tileset>
+ <tileset firstgid="10" name="DoorLocked" tilewidth="280" tileheight="464" tilecount="1" columns="1">
+  <image source="DoorLocked.png" width="280" height="464"/>
  </tileset>
  <layer name="background" width="32" height="9">
   <data encoding="csv">
@@ -72,8 +86,21 @@
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,3,3,0,0,0,0,0,0,0,0,0,0,3,
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,3,3,3,3,5,0,0,0,0,4,5,0,0,3,
 3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,3,3,3,3,3,0,5,0,0,4,0,0,5,0,3,
-3,0,0,0,4,3,3,3,3,0,5,0,0,0,0,4,0,3,3,3,3,3,0,0,5,4,0,0,0,0,3,3,
+3,0,0,0,4,0,0,0,0,0,5,0,0,0,0,4,0,3,3,3,3,3,0,0,5,4,0,0,0,0,3,3,
 2,2,2,3,0,0,0,0,0,0,0,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
+</data>
+ </layer>
+ <layer name="doors" width="32" height="9">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9,0,
+0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer name="entities" width="32" height="9">
@@ -84,9 +111,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,
-0,6,0,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,10,10,10,10,10,10,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,8,8,8,8,8,8,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <objectgroup name="objects">

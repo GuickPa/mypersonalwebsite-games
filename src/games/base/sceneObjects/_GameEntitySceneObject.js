@@ -4,6 +4,7 @@
 //GUI: base class for scene objects like entitiesSpawner, interactive objects, etc
 window.cocos.cc.GameEntitySceneObjectType = {
     SPAWNER: "spawner",
+    MOVINGBOX: "movingBox"
 };
 
 
@@ -55,7 +56,7 @@ window.cocos.cc.GameEntitySpawnerObject = window.cocos.cc.GameEntitySceneObject.
     },
 
     init: function(){
-        window.cocos.cc.GameEntitySceneObject.prototype.init.call(this);
+        this._super();
 
         return true;
     },
