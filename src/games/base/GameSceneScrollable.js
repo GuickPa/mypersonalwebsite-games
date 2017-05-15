@@ -30,9 +30,11 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
             if(typeof  scrollSpeed === 'number'){
                 this.scrollSpeed = scrollSpeed;
             }else{
-                this.scrollSpeed = 100;
+                this.scrollSpeed = 200;
             }
             this.scheduleUpdate();
+            // var moveTo = window.cocos.cc.MoveTo.create(100, -4000, 0);
+            // this.runAction(moveTo);
         }
     },
 

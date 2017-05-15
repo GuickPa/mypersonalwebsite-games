@@ -252,45 +252,53 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
         var colX = Math.floor(p.x / tileSize.width);
         //GUI: first check if it is on slope
         var tp = window.cocos.cc.p(colX, max - minY);
-        var currentTile = obstacles.getTileAt(tp);
-        if (currentTile && this.checkTile(tile)) {
-            //GUI: get tile's properties
-            var gid = obstacles.getTileGIDAt(tp);
-            var properties = this.sceneTilemap.getPropertiesForGID(gid);
-            //GUI: check for slopes
-            if (properties != null && properties["sr"] != null && properties["sl"] != null) {
-                //GUI: if it is on slope, just move torward to direction
-                this.setPositionX(p.x + dx);
-                //GUI: check for free fall
-                if(this.checkForFreeFall()) {
-                    if(dx > 0) {
-                        if (this.checkForEmptyTile(obstacles, colX + 1, max - minY) && this.checkForEmptyTile(obstacles, colX + 1, max - minY + 1)) {
-                            var dist = Math.abs(((colX + 1) * tileSize.width) - this.getPositionX());
-                            if (dist < Math.abs(dx)) {
-                                this.onBorder();
-                                return;
+        if(tp.x >= 0 && tp.x < tileSize.width && tp.y >= 0 && tp.y < tileSize.height) {
+            var currentTile = obstacles.getTileAt(tp);
+            if (currentTile && this.checkTile(tile)) {
+                //GUI: get tile's properties
+                var gid = obstacles.getTileGIDAt(tp);
+                var properties = this.sceneTilemap.getPropertiesForGID(gid);
+                //GUI: check for slopes
+                if (properties != null && properties["sr"] != null && properties["sl"] != null) {
+                    //GUI: if it is on slope, just move torward to direction
+                    this.setPositionX(p.x + dx);
+                    //GUI: check for free fall
+                    if (this.checkForFreeFall()) {
+                        if (dx > 0) {
+                            if (this.checkForEmptyTile(obstacles, colX + 1, max - minY) && this.checkForEmptyTile(obstacles, colX + 1, max - minY + 1)) {
+                                var dist = Math.abs(((colX + 1) * tileSize.width) - this.getPositionX());
+                                if (dist < Math.abs(dx)) {
+                                    this.onBorder();
+                                    return;
+                                }
+                            }
+                        }
+                        else if (dx < 0) {
+                            if (this.checkForEmptyTile(obstacles, colX - 1, max - minY) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 1)) {
+                                var dist = Math.abs(((colX - 1) * tileSize.width + tileSize.width) - this.getPositionX());
+                                if (dist < Math.abs(dx)) {
+                                    this.onBorder();
+                                    console.log("on border");
+                                    return;
+                                }
                             }
                         }
                     }
-                    else if (dx < 0){
-                        if (this.checkForEmptyTile(obstacles, colX - 1, max - minY) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 1)) {
-                            var dist = Math.abs(((colX - 1) * tileSize.width + tileSize.width) - this.getPositionX());
-                            if (dist < Math.abs(dx)) {
-                                this.onBorder();
-                                return;
-                            }
-                        }
+                    return;
+                }
+                //GUI: if it is not on a slope, but it is closer to tile's upper surface, adjust y value (prevents problem when climbing a slope and it ends to be near, but under, tile'surface)
+                else {
+                    var tileUpperY = (currentTile.getPosition().y * this.getTilemapScaleY()) + tileSize.height;
+                    if (Math.abs((this.getPosition().y - halfH) - tileUpperY) <= tileSize.height / 20) {
+                        this.setPositionY(tileUpperY + halfH);
                     }
                 }
-                return;
             }
-            //GUI: if it is not on a slope, but it is closer to tile's upper surface, adjust y value (prevents problem when climbing a slope and it ends to be near, but under, tile'surface)
-            else{
-                var tileUpperY = (currentTile.getPosition().y * this.getTilemapScaleY()) + tileSize.height;
-                if(Math.abs((this.getPosition().y - halfH) - tileUpperY) <= tileSize.height/20){
-                    this.setPositionY(tileUpperY + halfH);
-                }
-            }
+        }
+        else{
+            //GUI: on the edge
+            this.onHitEvent();
+            return;
         }
         //GUI: scan along these rows and towards the direction to find obstacles
         //then find the distance with the closest one: movement is the minimum between distance and this'step
@@ -324,6 +332,16 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                 if (bottomY >= slopeY || this.getPosition().x >= (tile.getPosition().x * this.getTilemapScaleX())) {
                                     min = dx;
                                     this.setPositionX(p.x + min);
+                                    //GUI: check for free fall
+                                    if(this.checkForFreeFall()) {
+                                        if (this.checkForEmptyTile(obstacles, colX + 1, max - minY) && this.checkForEmptyTile(obstacles, colX + 1, max - minY + 1) && this.checkForEmptyTile(obstacles, colX + 1, max - minY + 2)) {
+                                            var dist = Math.abs(((colX - 1) * tileSize.width + tileSize.width) - fx);
+                                            if(dist < Math.abs(dx)) {
+                                                this.onBorder();
+                                                return;
+                                            }
+                                        }
+                                    }
                                     return;
                                 }
                                 else {
@@ -335,8 +353,10 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                         }
                         else {
                             //GUI: if going right, distance is with tile' x pos and this'front face
-                            var dist = Math.round(((tile.getPosition().x - 1) * this.getTilemapScaleX()) - fx);
-                            min = Math.min(Math.max(0, dist), min);
+                            var dist = Math.round(((tile.getPosition().x) * this.getTilemapScaleX()) - fx);
+                            if(dist >= 0) {
+                                min = Math.min(dist, min);
+                            }
                         }
                     }
                 }
@@ -349,7 +369,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             else{
                 //GUI: check for free fall
                 if(this.checkForFreeFall()) {
-                    if (this.checkForEmptyTile(obstacles, colX + 1, max - minY) && this.checkForEmptyTile(obstacles, colX + 1, max - minY + 1)) {
+                    if (this.checkForEmptyTile(obstacles, colX + 1, max - minY) && this.checkForEmptyTile(obstacles, colX + 1, max - minY + 1) && this.checkForEmptyTile(obstacles, colX + 1, max - minY + 2)) {
                         var dist = Math.abs(((colX + 1)* tileSize.width) - this.getPositionX());
                         if(dist < Math.abs(dx)) {
                             this.onBorder();
@@ -390,7 +410,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                     this.setPositionX(p.x + Math.max(min, dx));
                                     //GUI: check for free fall
                                     if(this.checkForFreeFall()) {
-                                        if (this.checkForEmptyTile(obstacles, colX - 1, max - minY) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 1)) {
+                                        if (this.checkForEmptyTile(obstacles, colX - 1, max - minY) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 1) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 2)) {
                                             var dist = Math.abs(((colX - 1) * tileSize.width + tileSize.width) - fx);
                                             if(dist < Math.abs(dx)) {
                                                 this.onBorder();
@@ -404,13 +424,17 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                     //GUI: if going left, distance is with tile' x pos + tile's width and this'back face
                                     var dist = Math.round((((tile.getPosition().x + 1) * this.getTilemapScaleX()) + tileSize.width) - fx);//GUI: size already scaled
                                     min = Math.max(Math.min(0, dist), min);
+                                    console.log("1");
                                 }
                             }
                         }
                         else {
                             //GUI: if going left, distance is with tile' x pos + tile's width and this'back face
                             var dist = Math.round((((tile.getPosition().x + 1) * this.getTilemapScaleX()) + tileSize.width) - fx);//GUI: size already scaled
-                            min = Math.max(Math.min(0, dist), min);
+                            if(dist <= 0) {
+                                min = Math.max(dist, min);
+
+                            }
                         }
                     }
                 }
@@ -423,7 +447,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
             else{
                 //GUI: check for free fall
                 if(this.checkForFreeFall()) {
-                    if (this.checkForEmptyTile(obstacles, colX - 1, max - minY) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 1)) {
+                    if (this.checkForEmptyTile(obstacles, colX - 1, max - minY) && this.checkForEmptyTile(obstacles, colX - 1, max - minY + 1)&& this.checkForEmptyTile(obstacles, colX - 1, max - minY + 2)) {
                         var dist = Math.abs(((colX - 1) * tileSize.width + tileSize.width) - fx);
                         if(dist < Math.abs(dx)) {
                             this.onBorder();
@@ -495,7 +519,7 @@ window.cocos.cc.GameEntity = window.cocos.cc.Sprite.extend({
                                 var rightFloorY = tileH * sr;
                                 var floorY = ((1 - dsy) * leftFloorY + dsy * rightFloorY);
                                 //GUI: this is the position on slope - calc difference
-                                var y = tileY + floorY;
+                                var y = tileY + floorY + 1;
                                 var dist = y - fy;
                                 min = Math.round(dist);
                                 //GUI: if it is on slope, it is on ground
