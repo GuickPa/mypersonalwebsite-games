@@ -45,7 +45,7 @@
                             var tileset = cc.TMXTiledMap.create("assets/games/tiles/scifi/level00.tmx");
                             tileset.setTag(0);
                             var tscale = size.height/(9*256);
-                            tileset.setScale(tscale);
+                            this.setScale(tscale);
                             this.setTilemap(tileset);
                             this.addChild(tileset, 0);
                             //GUI: wait a while, then load objects
@@ -54,14 +54,14 @@
                         },
 
                         onLoadTiledMap: function(){
-                            var size = cc.director.getWinSize();
-                            var tscale = size.height/(9*256);
+                            var size = cc.size(this.tilemap.getTileSize().width * 16, this.tilemap.getTileSize().height * 9);
+                            var tscale = 1;//size.height/(9*256);
                             var sprite = this.createPlayer();
                             this.leftBound = 2 * tscale * 256;
                             this.rightBound = size.width - (4 * tscale * 256);
-                            this.setNodeToFollow(sprite);
-
+                            this.setNodeToFollow(sprite, sprite.speed);
                             //GUI: add scene objects
+                            console.log(size, this.leftBound, this.rightBound);
                             this.createSceneEntities();
                         }
                     });

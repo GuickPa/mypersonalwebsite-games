@@ -7,6 +7,7 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
     rightBound: 0,
     scrollSpeed: 0,
     velocity: null,
+    moveAction: null,
 
     ctor:function () {
         this._super();
@@ -18,6 +19,15 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
         this.leftBound = 0;
         this.rightBound = 0;
         this.velocity = window.cocos.cc.p(0,0);
+    },
+
+    onExit: function(){
+        this._super();
+        this.nodeToFollow = null;
+        if(this.tilemap != null){
+            this.tilemap.stopAllActions();
+        }
+        this.moveAction = null;
     },
 
     setNodeToFollow: function(node, scrollSpeed){
@@ -40,35 +50,32 @@ window.cocos.cc.GameSceneScrollable = window.cocos.cc.GameScene.extend({
 
     update: function (dt) {
         //GUI: scroll itself to follow the target node
-        if(this.nodeToFollow){
-            var x = this.nodeToFollow.getPosition().x * (this.tilemap != null ? this.tilemap.getScaleX() : 1)
-            var nx = x + this.getPosition().x;
+        if(this.nodeToFollow && this.tilemap){
+            var x = this.nodeToFollow.getPosition().x;// * (this.tilemap != null ? this.tilemap.getScaleX() : 1)
+            var nx = x + this.tilemap.getPosition().x;
             //GUI: if node is beyond a boundary, scrolls
             if(nx < this.leftBound){
-                this.velocity.x = this.scrollSpeed;
+                //this.velocity.x = this.scrollSpeed;
                 //this.setPositionX(Math.min(0, this.getPositionX() + (this.scrollSpeed * dt)));
+                console.log("left")
+                if(this.moveAction == null && this.tilemap.getPositionX() < 0) {
+                    this.moveAction = window.cocos.cc.repeatForever(window.cocos.cc.moveBy(1, this.scrollSpeed, 0));
+                    this.tilemap.runAction(this.moveAction);
+                }
             }
             else if (nx > this.rightBound){
-                this.velocity.x = -this.scrollSpeed;
+                //this.velocity.x = -this.scrollSpeed;
                 //this.setPositionX(this.getPositionX() - (this.scrollSpeed * dt));
+                console.log("right")
+                if(this.moveAction == null) {
+                    this.moveAction = window.cocos.cc.repeatForever(window.cocos.cc.moveBy(1, -this.scrollSpeed, 0));
+                    this.tilemap.runAction(this.moveAction);
+                }
             }
-        }
-        //GUI: update position
-        this.setPositionX(this.getPositionX() + (this.velocity.x * dt));
-        //GUI: deceleration
-        var dx = -this.velocity.x * dt;
-        if(this.velocity.x > 0){
-            this.velocity.x = Math.max(0, this.velocity.x + dx);
-            this.setPositionX(Math.min(0, this.getPositionX()));
-        }
-        else if(this.velocity.x < 0){
-            this.velocity.x = Math.min(0, this.velocity.x + dx);
-            this.setPositionX(Math.max(window.cocos.cc.director.getWinSize().width - this.totalSize.width, this.getPositionX()));
-        }
-
-        //GUI: avoids little flickerings
-        if(Math.abs(this.velocity.x) < 1){
-            this.velocity.x = 0;
+            else if(this.moveAction != null){
+                this.tilemap.stopAction(this.moveAction);
+                this.moveAction = null;
+            }
         }
     }
 });

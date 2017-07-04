@@ -18,7 +18,7 @@
 
             .when('/', {
                 templateUrl: 'assets/templates/index.html',
-                controller: 'gameCtrl'
+                controller: 'indexCtrl'
             })
 
             .when('/games', {
